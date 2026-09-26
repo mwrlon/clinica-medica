@@ -4,21 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ProSaúde - Início</title>
+    <link rel="stylesheet" href="../../css/style.css">
 </head>
 <body>
     <header>
         <div>
             <div>
-                <img src="../../icons/" alt="Ícone ProSaúde">
+                <img src="../../icons/logo-prosaude.svg" alt="Ícone ProSaúde">
             </div>
 
             <nav>
                 <ul>
-                    <li><a href="">Especialidades</a></li>
-                    <li><a href="">Como funciona</a></li>
-                    <li><a href="">Equipe</a></li>
-                    <li><a href="">Depoimentos</a></li>
-                    <li><a href="">Contato</a></li>
+                    <li><a href="#especialidades">Especialidades</a></li>
+                    <li><a href="#como-funciona">Como funciona</a></li>
+                    <li><a href="#equipe">Equipe</a></li>
+                    <li><a href="#depoimentos">Depoimentos</a></li>
+                    <li><a href="#contato">Contato</a></li>
                 </ul>
             </nav>
 
@@ -32,7 +33,7 @@
 
         <!-- PRINCIPAL -->
 
-        <section>
+        <section id="inicio">
             <div>
                 <div>
                     <h1>Cuidado médico com a clareza que a sua saúde merece</h1>
@@ -61,14 +62,30 @@
                 </div>
 
                 <div>
-                    <img src="../../images/" alt="">
+                    <img src="../../images/hero-agendamento.svg" alt="Ilustração de um card de agendamento com data, horário e especialista confirmados">
                 </div>
             </div>
         </section>
 
+        <!-- CONVÊNIOS -->
+
+        <section id="convenios">
+            <div>
+                <p>Atendemos os principais convênios</p>
+            </div>
+
+            <ul>
+                <li><img src="../../icons/unimed.svg" alt="Logo Unimed"></li>
+                <li><img src="../../icons/bradesco-saude.svg" alt="Logo Bradesco Saúde"></li>
+                <li><img src="../../icons/sulamerica.svg" alt="Logo SulAmérica"></li>
+                <li><img src="../../icons/amil.svg" alt="Logo Amil"></li>
+                <li><img src="../../icons/hapvida.svg" alt="Logo Hapvida"></li>
+            </ul>
+        </section>
+
         <!-- ESPECIALIDADES -->
 
-        <section>
+        <section id="especialidades">
             <div>
                 <h2>Especialidades</h2>
                 <p>Uma equipe multidisciplinar para cuidar de você e da sua família em cada etapa da vida.</p>
@@ -146,62 +163,62 @@
 
         <!-- COMO FUNCIONA -->
 
-        <section>
+        <section id="como-funciona">
             <div>
                 <h2>Como funciona</h2>
                 <p>Do agendamento ao acompanhamento, sem burocracia entre uma etapa e outra.</p>
             </div>
-<img src="" alt="">
+
             <div>
                 <div>
-                    <div></div>
-                    <h3></h3>
-                    <p></p>
+                    <div>1</div>
+                    <h3>Agende</h3>
+                    <p>Escolha a especialidade e o horário pelo telefone, WhatsApp ou presencialmente.</p>
                 </div>
 
                 <div>
-                    <div></div>
-                    <h3></h3>
-                    <p></p>
+                    <div>2</div>
+                    <h3>Consulte</h3>
+                    <p>Seja atendido por um especialista com acesso ao seu histórico completo.</p>
                 </div>
 
                 <div>
-                    <div></div>
-                    <h3></h3>
-                    <p></p>
+                    <div>3</div>
+                    <h3>Acompanhe</h3>
+                    <p>Receba exames, receitas e retornos organizados em um único prontuário.</p>
                 </div>
             </div>
         </section>
 
         <!-- EQUIPE -->
 
-        <section>
+        <section id="equipe">
             <div>
                 <h2>Equipe médica</h2>
-                <p></p>
+                <p>Profissionais experientes, escolhidos pela dedicação tanto quanto pela técnica.</p>
             </div>
 
             <div>
                 <div>
                     <div>
-                        <img src="" alt="">
-                        <p></p>
+                        <img src="../../images/equipe-marina-ferraz.jpg" alt="Foto da Dra. Marina Ferraz">
+                        <p>Dra. Marina Ferraz — Cardiologia</p>
                     </div>
                     <div>
-                        <img src="" alt="">
-                        <p></p>
+                        <img src="../../images/equipe-rafael-tavares.jpg" alt="Foto do Dr. Rafael Tavares">
+                        <p>Dr. Rafael Tavares — Pediatria</p>
                     </div>
                     <div>
-                        <img src="" alt="">
-                        <p></p>
+                        <img src="../../images/equipe-camila-lopes.jpg" alt="Foto da Dra. Camila Lopes">
+                        <p>Dra. Camila Lopes — Dermatologia</p>
                     </div>
                     <div>
-                        <img src="" alt="">
-                        <p></p>
+                        <img src="../../images/equipe-joao-salles.jpg" alt="Foto do Dr. João Salles">
+                        <p>Dr. João Salles — Ortopedia</p>
                     </div>
                     <div>
-                        <img src="" alt="">
-                        <p></p>
+                        <img src="../../images/equipe-helena-prado.jpg" alt="Foto da Dra. Helena Prado">
+                        <p>Dra. Helena Prado — Ginecologia</p>
                     </div>
                 </div>
             </div>
@@ -209,55 +226,78 @@
 
         <!-- DEPOIMENTOS -->
 
-        <section>
+        <section id="depoimentos">
             <div>
-                <h3></h3>
-                <p></p>
+                <h3>O que dizem nossos pacientes</h3>
+                <p>Histórias reais de quem já passou pela ProSaúde.</p>
             </div>
 
             <div>
 
                 <div>
-                    <h3></h3>
-                    <p></p>
+                    <h3>Helena Marques</h3>
+                    <p>“Fui atendida no mesmo dia em que liguei, e pela primeira vez saí de uma consulta com todas as minhas dúvidas respondidas.”</p>
                 </div>
 
                 <div>
-                    <h3></h3>
-                    <p></p>
+                    <h3>Eduardo Nogueira</h3>
+                    <p>“O acompanhamento entre exames e retorno é muito mais organizado do que em qualquer outra clínica que já frequentei.”</p>
                 </div>
 
                 <div>
-                    <h3></h3>
-                    <p></p>
+                    <h3>Patrícia Ramos</h3>
+                    <p>“Levei meu filho para a pediatria e o cuidado com a família toda foi além do que eu esperava.”</p>
                 </div>
 
                 <div>
-                    <h3></h3>
-                    <p></p>
+                    <h3>Marcos Vinícius</h3>
+                    <p>“Marquei minha consulta pelo WhatsApp e fui atendido no mesmo dia. Recomendo para toda a minha equipe.”</p>
                 </div>
 
             </div>
         </section>
 
+        <!-- NÚMEROS -->
+
+        <section id="numeros">
+            <div>
+                <div>
+                    <h3>18</h3>
+                    <p>anos de atividade contínua</p>
+                </div>
+                <div>
+                    <h3>32</h3>
+                    <p>especialidades médicas</p>
+                </div>
+                <div>
+                    <h3>60 mil+</h3>
+                    <p>consultas realizadas</p>
+                </div>
+                <div>
+                    <h3>98%</h3>
+                    <p>de satisfação dos pacientes</p>
+                </div>
+            </div>
+        </section>
+
         <!-- CONTATO -->
 
-        <section>
+        <section id="contato">
             <div>
-                <h2></h2>
-                <p></p>
+                <h2>Pronto para cuidar da sua saúde?</h2>
+                <p>Nossa recepção responde rapidamente por telefone ou WhatsApp para encontrar o melhor horário para você.</p>
 
                 <div>
-                    <button></button>
-                    <button></button>
+                    <button>Agendar Consulta</button>
+                    <button>Ver Especialidades</button>
                 </div>
             </div>
 
             <div>
-                <p></p>
-                <p></p>
-                <p></p>
-                <p></p>
+                <p>Telefone / WhatsApp: (51) 99999-9999</p>
+                <p>E-mail: contato@prosaude.com.br</p>
+                <p>Endereço: Rua das Acácias, 482 — Erechim, RS</p>
+                <p>Horário: Segunda a sexta, 7h às 19h · Sábado, 8h às 12h</p>
             </div>
         </section>
 
@@ -265,31 +305,31 @@
 
     <footer>
         <div>
-            <img src="" alt="">
+            <img src="../../icons/logo-prosaude-branco.svg" alt="Logo ProSaúde">
         </div>
 
         <div>
             <div>
-                <p></p>
-                <a href=""></a>
-                <a href=""></a>
-                <a href=""></a>
-                <a href=""></a>
+                <p>Navegação</p>
+                <a href="#especialidades">Especialidades</a>
+                <a href="#como-funciona">Como funciona</a>
+                <a href="#equipe">Equipe</a>
+                <a href="#depoimentos">Depoimentos</a>
             </div>
 
             <div>
-                <p></p>
-                <a href=""></a>
-                <a href=""></a>
-                <a href=""></a>
-                <a href=""></a>
+                <p>Contato</p>
+                <a href="tel:+555199999999">(51) 99999-9999</a>
+                <a href="mailto:contato@prosaude.com.br">contato@prosaude.com.br</a>
+                <a href="#contato">Rua das Acácias, 482 — Erechim, RS</a>
+                <a href="#contato">Segunda a sexta, 7h às 19h</a>
             </div>
 
             <div></div>
 
             <div>
-                <p></p>
-                <p></p>
+                <p>© 2026 ProSaúde. Todos os direitos reservados.</p>
+                <p>CNPJ 00.000.000/0001-00</p>
             </div>
             
         </div>
