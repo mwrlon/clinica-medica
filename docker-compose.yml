@@ -1,0 +1,62 @@
+services:
+
+  # Banco de dados
+  db:
+    image: mysql:8.4
+    container_name: prosaude_db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root}
+      MYSQL_DATABASE: ${DB_NAME:-prosaude}
+      MYSQL_USER: ${DB_USER:-prosaude}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-prosaude}
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+      # Scripts .sql colocados aqui rodam automaticamente na primeira vez que o container sobe
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_ROOT_PASSWORD:-root}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Aplicação Node.js (inclui npm)
+  app:
+    image: node:20-alpine
+    container_name: prosaude_app
+    restart: unless-stopped
+    working_dir: /usr/src/app
+    volumes:
+      - ./:/usr/src/app
+      - node_modules:/usr/src/app/node_modules
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: development
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_NAME: ${DB_NAME:-prosaude}
+      DB_USER: ${DB_USER:-prosaude}
+      DB_PASSWORD: ${DB_PASSWORD:-prosaude}
+    depends_on:
+      db:
+        condition: service_healthy
+    command: sh -c "npm install && npm run dev"
+    stdin_open: true
+    tty: true
+
+  # Interface web para visualizar o MySQL (opcional, remova se não quiser)
+  adminer:
+    image: adminer:latest
+    container_name: prosaude_adminer
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+
+volumes:
+  db_data:
+  node_modules:
