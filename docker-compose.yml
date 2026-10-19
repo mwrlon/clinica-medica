@@ -1,62 +1,49 @@
 services:
+  app:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    image: laravel-app
+    container_name: laravel_app
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - ./backend:/var/www/html
+    networks:
+      - laravel-network
 
-  # Banco de dados
+  webserver:
+    image: nginx:alpine
+    container_name: laravel_nginx
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    volumes:
+      - ./backend:/var/www/html
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - laravel-network
+
   db:
-    image: mysql:8.4
-    container_name: prosaude_db
+    image: mysql:8.0
+    container_name: laravel_mysql
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root}
-      MYSQL_DATABASE: ${DB_NAME:-prosaude}
-      MYSQL_USER: ${DB_USER:-prosaude}
-      MYSQL_PASSWORD: ${DB_PASSWORD:-prosaude}
+      MYSQL_DATABASE: laravel
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_USER: laravel_user
+      MYSQL_PASSWORD: laravel_password
     ports:
       - "3306:3306"
     volumes:
-      - db_data:/var/lib/mysql
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_ROOT_PASSWORD:-root}"]
-      start_period: 40s
-      interval: 10s
-      timeout: 5s
-      retries: 6
-
-  # Backend Node.js (Express + Knex), serve também o frontend estático
-  app:
-    image: node:20-alpine
-    container_name: prosaude_app
-    restart: unless-stopped
-    working_dir: /usr/src/app
-    volumes:
-      - ./:/usr/src/app
-      - node_modules:/usr/src/app/node_modules
-    ports:
-      - "3000:3000"
-    environment:
-      NODE_ENV: development
-      DB_HOST: db
-      DB_PORT: 3306
-      DB_NAME: ${DB_NAME:-prosaude}
-      DB_USER: ${DB_USER:-prosaude}
-      DB_PASSWORD: ${DB_PASSWORD:-prosaude}
-    depends_on:
-      db:
-        condition: service_healthy
-    # Roda as migrations do Knex antes de subir o servidor
-    command: sh -c "npm install && npx knex migrate:latest --knexfile backend/knexfile.js && npm run dev"
-    stdin_open: true
-    tty: true
-
-  # Interface web para visualizar o MySQL (opcional, remova se não quiser)
-  adminer:
-    image: adminer:latest
-    container_name: prosaude_adminer
-    restart: unless-stopped
-    ports:
-      - "8080:8080"
-    depends_on:
-      - db
+      - dbdata:/var/lib/mysql
+    networks:
+      - laravel-network
 
 volumes:
-  db_data:
-  node_modules:
+  dbdata:
+    driver: local
+
+networks:
+  laravel-network:
+    driver: bridge
