@@ -6,9 +6,9 @@ services:
     image: laravel-app
     container_name: laravel_app
     restart: unless-stopped
-    working_dir: /var/www/fernandomm.com
+    working_dir: /var/www/fernandomm.com/clinica-medica
     volumes:
-      - ./backend:/var/www/fernandomm.com
+      - ./backend:/var/www/fernandomm.com/clinica-medica
     networks:
       - laravel-network
 
@@ -19,7 +19,7 @@ services:
     ports:
       - "8000:80"
     volumes:
-      - ./backend:/var/www/fernandomm.com
+      - ./backend:/var/www/fernandomm.com/clinica-medica
       - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
     networks:
       - laravel-network
