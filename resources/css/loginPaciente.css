@@ -1,0 +1,181 @@
+@import url('https://fonts.googleapis.com/css2?family=Newsreader:wght@500&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
+
+:root {
+  --blue-vivid: #5FACF4;
+  --blue-soft:  #AEDAF4;
+  --blue-deep:  #246DBF;
+  --paper:      #EFFFFF;
+  --ink:        #0E0E0E;
+  --ink-70:     rgba(14, 14, 14, 0.7);
+  --ink-45:     rgba(14, 14, 14, 0.45);
+  --ink-12:     rgba(14, 14, 14, 0.12);
+  --radius-m:   10px;
+  --font-serif: 'Newsreader', Georgia, serif;
+  --font-sans:  'IBM Plex Sans', -apple-system, sans-serif;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--paper);
+  color: var(--ink);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+header {
+  padding: 24px;
+  display: flex;
+  justify-content: center;
+  border-bottom: 1px solid var(--ink-12);
+  background: rgba(239, 255, 255, 0.85);
+  backdrop-filter: blur(8px);
+}
+
+header img {
+  height: 40px;
+}
+
+main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+#login {
+  background: #ffffff;
+  width: 100%;
+  max-width: 440px;
+  padding: 40px;
+  border-radius: var(--radius-m);
+  border: 1px solid var(--ink-12);
+  box-shadow: 0 16px 32px -12px rgba(14, 14, 14, 0.08);
+  position: relative;
+}
+
+/* Indicador sutil de perfil Paciente */
+#login::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--blue-vivid);
+  border-radius: var(--radius-m) var(--radius-m) 0 0;
+}
+
+#login h1 {
+  font-family: var(--font-serif);
+  font-size: 1.85rem;
+  font-weight: 500;
+  color: var(--ink);
+  text-align: center;
+}
+
+#login > div:first-child p {
+  text-align: center;
+  color: var(--ink-45);
+  font-size: 0.9rem;
+  margin-top: 8px;
+  margin-bottom: 28px;
+}
+
+form > div {
+  margin-bottom: 18px;
+}
+
+label {
+  display: block;
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--ink-70);
+  margin-bottom: 6px;
+}
+
+input[type="email"],
+input[type="password"] {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid var(--ink-12);
+  border-radius: 6px;
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  outline: none;
+  background: var(--paper);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+input[type="email"]:focus,
+input[type="password"]:focus {
+  border-color: var(--blue-deep);
+  box-shadow: 0 0 0 3px rgba(36, 109, 191, 0.15);
+}
+
+input[type="checkbox"] {
+  accent-color: var(--blue-deep);
+  margin-right: 8px;
+}
+
+form > div:has(input[type="checkbox"]) {
+  display: flex;
+  align-items: center;
+}
+
+button[type="submit"] {
+  width: 100%;
+  padding: 14px;
+  background: var(--blue-deep);
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: background-color 0.2s ease;
+}
+
+button[type="submit"]:hover {
+  background: #1c5aa0;
+}
+
+.login-divider {
+  margin: 20px 0;
+  border: 0;
+  border-top: 1px solid var(--ink-12);
+}
+
+#login > div:last-child {
+  margin-top: 24px;
+  text-align: center;
+  font-size: 0.88rem;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+#login a {
+  color: var(--blue-deep);
+  text-decoration: none;
+}
+
+#login a:hover {
+  text-decoration: underline;
+}
+
+footer {
+  text-align: center;
+  padding: 20px;
+  font-size: 0.82rem;
+  color: var(--ink-45);
+  border-top: 1px solid var(--ink-12);
+}
