@@ -19,4 +19,4 @@ RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
 # Instalar o Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-WORKDIR /var/www/fernandomm.com
+WORKDIR /var/www/fernandomm.com/clinica-medica
