@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ProSaúde - Recuperar senha</title>
-    @vite('resources/css/esqueciSenha.css')
+    @vite(['resources/css/esqueciSenha.css'])
 </head>
 <body>
     <header class="site-header">

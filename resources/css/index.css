@@ -29,7 +29,7 @@
 
 html {
     scroll-behavior: smooth;
-    scroll-padding-top: 90px;
+    scroll-padding-top: 54px;
 }
 
 body {
@@ -420,9 +420,11 @@ main > section {
 
 .spec-icon {
     flex-shrink: 0;
+    color: var(--blue-darker);
 }
 
 .spec-icon img {
+    color: var(--blue-darker);
     width: 32px;
     height: 32px;
 }

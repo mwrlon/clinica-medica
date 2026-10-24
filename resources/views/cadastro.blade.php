@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ProSaúde - Cadastro</title>
-    @vite('resources/css/cadastro.css')
+    @vite(['resources/css/cadastro.css', 'resources/js/scripts/cadastro.js'])
 </head>
 <body>
     <header class="site-header">
@@ -45,7 +45,7 @@
                     <p>Preencha os dados abaixo para começar. Leva menos de um minuto.</p>
                 </div>
 
-                <form method="POST" action="{{ url('/cadastrar') }}" novalidate>
+                <form id="form-cadastro">
                     @csrf
 
                     <div class="form-grid">
@@ -65,6 +65,17 @@
                             <label for="nascimento">Data de nascimento</label>
                             <input type="date" id="nascimento" name="data_nascimento" value="{{ old('data_nascimento') }}" autocomplete="bday" required>
                             @error('data_nascimento')<span class="field-error">{{ $message }}</span>@enderror
+                        </div>
+
+                        <div class="field">
+                            <label for="sexo">Sexo</label>
+                            <select id="sexo" name="sexo" required>
+                                <option value="">Selecione</option>
+                                <option value="M">Masculino</option>
+                                <option value="F">Feminino</option>
+                                <option value="Outro">Outro</option>
+                            </select>
+                            <span class="field-error"></span>
                         </div>
 
                         <div class="field">
@@ -92,7 +103,7 @@
 
                         <div class="field">
                             <label for="confirmar-senha">Confirmar senha</label>
-                            <input type="password" id="confirmar-senha" name="confirmar_senha" placeholder="Repita a senha" minlength="8" autocomplete="new-password" required>
+                            <input type="password" id="confirmar_senha" name="confirmar_senha" placeholder="Repita a senha" minlength="8" autocomplete="new-password" required>
                             @error('confirmar_senha')<span class="field-error">{{ $message }}</span>@enderror
                         </div>
                     </div>

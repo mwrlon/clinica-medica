@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ProSaúde - Minha Área (Paciente)</title>
-    @vite('resources/css/paciente.css')
+    @vite(['resources/css/paciente.css', 'resources/js/scripts/paciente.js'])
     <!-- Chart.js para visualização da evolução do paciente -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -131,6 +131,7 @@
     <footer>
         <p>© {{ date('Y') }} ProSaúde. Todos os direitos reservados.</p>
     </footer>
+
 
 </body>
 </html>

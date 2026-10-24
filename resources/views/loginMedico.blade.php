@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ProSaúde - Portal Médico</title>
-    @vite('resources/css/loginMedico.css')
+    @vite(['resources/css/loginMedico.css', 'resources/js/scripts/loginMedico.js'])
 </head>
 <body>
     <header class="site-header">
@@ -81,5 +81,6 @@
     <footer class="site-footer">
         <p>© {{ date('Y') }} ProSaúde. Todos os direitos reservados.</p>
     </footer>
+
 </body>
 </html>

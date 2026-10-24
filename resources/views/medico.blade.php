@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ProSaúde - Painel do Médico</title>
-    @vite('resources/css/medico.css')
     <!-- Chart.js para renderização de gráficos -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    @vite(['resources/css/medico.css', 'resources/js/scripts/medico.js'])
 </head>
 <body>
     <header>
@@ -156,6 +156,7 @@
     <footer>
         <p>© {{ date('Y') }} ProSaúde. Todos os direitos reservados.</p>
     </footer>
+
 
 </body>
 </html>

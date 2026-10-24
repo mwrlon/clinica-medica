@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ProSaúde - Início</title>
-    @vite('resources/css/index.css')
+    @vite(['resources/css/index.css'])
 </head>
 <body>
     <header class="site-header">
@@ -34,7 +34,7 @@
             <div class="container hero-grid">
                 <div class="hero-text">
                     <h1>Cuidado médico com a clareza que a sua saúde merece</h1>
-                    <p class="hero-lead">Consultas, exames e acompanhamento contínuo reunidos em um só lugar, com especialistas prontos para cuidar de cada fase da sua vida — sem filas de espera nem respostas incompletas.</p>
+                    <p class="hero-lead">Consultas, exames e acompanhamento contínuo reunidos em um só lugar, com especialistas prontos para cuidar de cada fase da sua vida, sem filas de espera nem respostas incompletas.</p>
 
                     <div class="actions">
                         <a class="btn btn-primary" href="{{ url('/login') }}">Agendar Consulta</a>

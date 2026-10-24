@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ProSaúde - Entrar (Paciente)</title>
-    @vite('resources/css/loginPaciente.css')
+    @vite(['resources/css/loginPaciente.css', 'resources/js/scripts/loginPaciente.js'])
 </head>
 <body>
     <header class="site-header">
@@ -12,7 +12,7 @@
             <a href="{{ url('/') }}" class="logo-link">
                 <img class="logo" src="{{ asset('icons/logo.svg') }}" alt="Ícone ProSaúde">
             </a>
-            <p class="header-login">É paciente? <a href="{{ url('/login') }}">Login de pacientes</a></p>
+            <p class="header-login">Você é médico? <a href="{{ url('/login-medico') }}">Acesse a área médica aqui</a></p>
         </div>
     </header>
 
@@ -83,5 +83,6 @@
     <footer class="site-footer">
         <p>© {{ date('Y') }} ProSaúde. Todos os direitos reservados.</p>
     </footer>
+
 </body>
 </html>
