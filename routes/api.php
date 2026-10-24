@@ -3,11 +3,11 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\RegisterController;
+use App\Http\Controllers\Api\ConsultaController;
 use App\Http\Controllers\Api\Admin\MedicoAdminController;
 use App\Http\Controllers\Api\Admin\EspecialidadeAdminController;
 use App\Http\Controllers\Api\Admin\SalaAdminController;
 use App\Http\Controllers\Api\Admin\ConvenioAdminController;
-use App\Http\Controllers\Api\ConsultaController;
 use App\Http\Controllers\Api\ExameController;
 
 /*

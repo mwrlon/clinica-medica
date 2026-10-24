@@ -1,100 +1,208 @@
-@import url('https://fonts.googleapis.com/css2?family=Newsreader:wght@500&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap");
 
 :root {
-  --blue-vivid: #5FACF4;
-  --blue-soft:  #AEDAF4;
-  --blue-deep:  #246DBF;
-  --paper:      #EFFFFF;
-  --ink:        #0E0E0E;
-  --ink-70:     rgba(14, 14, 14, 0.7);
-  --ink-45:     rgba(14, 14, 14, 0.45);
-  --ink-12:     rgba(14, 14, 14, 0.12);
-  --radius-m:   10px;
-  --font-serif: 'Newsreader', Georgia, serif;
-  --font-sans:  'IBM Plex Sans', -apple-system, sans-serif;
+    --blue-vivid: #5facf4;
+    --blue-soft: #aedaf4;
+    --blue-deep: #246dbf;
+    --blue-darker: #1c5aa0;
+    --paper: #efffff;
+    --ink: #0e0e0e;
+    --ink-70: rgba(14, 14, 14, 0.7);
+    --ink-45: rgba(14, 14, 14, 0.45);
+    --ink-12: rgba(14, 14, 14, 0.12);
+    --error: #b3261e;
+    --radius-s: 4px;
+    --radius-m: 10px;
+    --font-serif: "Newsreader", Georgia, serif;
+    --font-sans: "IBM Plex Sans", -apple-system, sans-serif;
 }
 
 * {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
 body {
-  font-family: var(--font-sans);
-  background-color: var(--paper);
-  color: var(--ink);
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+    font-family: var(--font-sans);
+    background-color: var(--paper);
+    color: var(--ink);
+    line-height: 1.6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    -webkit-font-smoothing: antialiased;
 }
 
-header {
-  padding: 20px;
-  display: flex;
-  justify-content: center;
-  border-bottom: 1px solid var(--ink-12);
-  background: rgba(239, 255, 255, 0.8);
+img {
+    max-width: 100%;
+    display: block;
 }
 
-header img {
-  height: 38px;
+a {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.2s ease;
 }
 
-main {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 40px 20px;
+a:focus-visible,
+button:focus-visible {
+    outline: 2px solid var(--blue-vivid);
+    outline-offset: 3px;
 }
 
-#cadastro {
-  background: #ffffff;
-  width: 100%;
-  max-width: 580px;
-  padding: 40px;
-  border-radius: var(--radius-m);
-  border: 1px solid var(--ink-12);
-  box-shadow: 0 16px 32px -12px rgba(14, 14, 14, 0.08);
+h1,
+h2 {
+    font-family: var(--font-serif);
+    font-weight: 500;
+    line-height: 1.2;
 }
 
-#cadastro h1 {
-  font-family: var(--font-serif);
-  font-size: 2rem;
-  color: var(--ink);
-  text-align: center;
+/* ---------- Header ---------- */
+.site-header {
+    background: rgba(239, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--ink-12);
+    padding: 14px 32px;
 }
 
-#cadastro > div:first-child p {
-  text-align: center;
-  color: var(--ink-45);
-  font-size: 0.9rem;
-  margin-top: 6px;
-  margin-bottom: 32px;
+.header-container {
+    max-width: 1180px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.logo {
+    height: 38px;
+    width: auto;
+}
+
+.header-login {
+    font-size: 0.92rem;
+    color: var(--ink-70);
+}
+
+.header-login a {
+    color: var(--blue-deep);
+    font-weight: 600;
+}
+
+.header-login a:hover {
+    text-decoration: underline;
+}
+
+/* ---------- Layout ---------- */
+.auth-page {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    padding: 48px 32px;
+}
+
+.auth-grid {
+    width: 100%;
+    max-width: 1060px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 0.8fr 1.2fr;
+    align-items: stretch;
+    border-radius: var(--radius-m);
+    overflow: hidden;
+    border: 1px solid var(--ink-12);
+    box-shadow: 0 24px 48px -24px rgba(14, 14, 14, 0.18);
+}
+
+/* ---------- Painel lateral ---------- */
+.auth-aside {
+    background: var(--blue-soft);
+    padding: 48px 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.auth-aside h2 {
+    font-size: clamp(1.7rem, 1.2vw + 1.2rem, 2.1rem);
+}
+
+.auth-aside > p {
+    margin-top: 14px;
+    color: var(--ink-70);
+}
+
+.benefits {
+    list-style: none;
+    margin-top: 36px;
+    display: grid;
+    gap: 18px;
+}
+
+.benefits li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: 0.95rem;
+}
+
+.check {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--blue-deep);
+    color: var(--paper);
+    font-size: 0.8rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1px;
+}
+
+/* ---------- Card do formulário ---------- */
+.auth-card {
+    background: #ffffff;
+    padding: 48px 48px 40px;
+}
+
+.auth-head h1 {
+    font-size: 2rem;
+}
+
+.auth-head p {
+    margin-top: 8px;
+    color: var(--ink-70);
+    font-size: 0.95rem;
 }
 
 form {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
+    margin-top: 32px;
 }
 
-form > div {
-  display: flex;
-  flex-direction: column;
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px 16px;
 }
 
-form > div:has(input[type="checkbox"]),
-form button {
-  grid-column: span 2;
+.field {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.field-full {
+    grid-column: 1 / -1;
 }
 
 label {
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: var(--ink-70);
-  margin-bottom: 6px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--ink-70);
+    margin-bottom: 6px;
 }
 
 input[type="text"],
@@ -102,75 +210,203 @@ input[type="email"],
 input[type="tel"],
 input[type="date"],
 input[type="password"] {
-  width: 100%;
-  padding: 11px 14px;
-  border: 1.5px solid var(--ink-12);
-  border-radius: 6px;
-  font-family: var(--font-sans);
-  font-size: 0.92rem;
-  outline: none;
-  background: var(--paper);
+    width: 100%;
+    height: 46px;
+    padding: 0 14px;
+    font-family: var(--font-sans);
+    font-size: 0.95rem;
+    color: var(--ink);
+    background: var(--paper);
+    border: 1.5px solid var(--ink-12);
+    border-radius: 6px;
+    outline: none;
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background-color 0.2s ease;
+}
+
+input::placeholder {
+    color: var(--ink-45);
+}
+
+input:hover {
+    border-color: rgba(14, 14, 14, 0.25);
 }
 
 input:focus {
-  border-color: var(--blue-deep);
+    border-color: var(--blue-deep);
+    background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(95, 172, 244, 0.3);
 }
 
-form > div:has(input[type="checkbox"]) {
-  flex-direction: row;
-  align-items: center;
-  gap: 10px;
-  margin-top: 10px;
+input:user-invalid {
+    border-color: var(--error);
 }
 
-input[type="checkbox"] {
-  accent-color: var(--blue-deep);
-  width: 18px;
-  height: 18px;
+.field-hint {
+    margin-top: 5px;
+    font-size: 0.78rem;
+    color: var(--ink-45);
 }
 
-button[type="submit"] {
-  padding: 14px;
-  background: var(--blue-deep);
-  color: #ffffff;
-  border: none;
-  border-radius: 6px;
-  font-weight: 600;
-  font-size: 1rem;
-  cursor: pointer;
-  margin-top: 12px;
+.field-error {
+    display: block;
+    margin-top: 5px;
+    font-size: 0.8rem;
+    color: var(--error);
 }
 
-button[type="submit"]:hover {
-  background: #1c5aa0;
+/* ---------- Divisor de seção ---------- */
+.form-divider {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 28px 0 20px;
 }
 
-#cadastro > div:last-child {
-  margin-top: 24px;
-  text-align: center;
-  font-size: 0.9rem;
+.form-divider span {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--blue-deep);
 }
 
-#cadastro a {
-  color: var(--blue-deep);
-  text-decoration: none;
-  font-weight: 600;
+.form-divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--ink-12);
 }
 
-footer {
-  text-align: center;
-  padding: 20px;
-  font-size: 0.82rem;
-  color: var(--ink-45);
-  border-top: 1px solid var(--ink-12);
+/* ---------- Termos e botão ---------- */
+.terms {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-top: 24px;
 }
 
-@media (max-width: 540px) {
-  form {
-    grid-template-columns: 1fr;
-  }
-  form > div:has(input[type="checkbox"]),
-  form button {
-    grid-column: span 1;
-  }
+.terms input[type="checkbox"] {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    margin-top: 2px;
+    accent-color: var(--blue-deep);
+    cursor: pointer;
+}
+
+.terms label {
+    margin: 0;
+    font-size: 0.88rem;
+    cursor: pointer;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 14px 22px;
+    border: none;
+    border-radius: 6px;
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+        background-color 0.2s ease,
+        transform 0.1s ease;
+}
+
+.btn-primary {
+    background: var(--blue-deep);
+    color: var(--paper);
+}
+
+.btn-primary:hover {
+    background: var(--blue-darker);
+}
+
+.btn:active {
+    transform: translateY(1px);
+}
+
+.btn-block {
+    width: 100%;
+    margin-top: 24px;
+}
+
+.auth-switch {
+    margin-top: 24px;
+    text-align: center;
+    font-size: 0.9rem;
+    color: var(--ink-70);
+}
+
+.auth-switch a {
+    color: var(--blue-deep);
+    font-weight: 600;
+}
+
+.auth-switch a:hover {
+    text-decoration: underline;
+}
+
+/* ---------- Footer ---------- */
+.site-footer {
+    text-align: center;
+    padding: 24px 32px;
+    font-size: 0.82rem;
+    color: var(--ink-45);
+    border-top: 1px solid var(--ink-12);
+}
+
+/* ---------- Responsividade ---------- */
+@media (max-width: 900px) {
+    .auth-page {
+        padding: 32px 20px;
+    }
+
+    .auth-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .auth-aside {
+        padding: 32px 28px;
+    }
+
+    .benefits {
+        margin-top: 24px;
+    }
+
+    .auth-card {
+        padding: 36px 28px 32px;
+    }
+}
+
+@media (max-width: 560px) {
+    .site-header {
+        padding: 12px 20px;
+    }
+
+    .header-login {
+        font-size: 0.85rem;
+    }
+
+    .auth-page {
+        padding: 20px 12px;
+    }
+
+    .auth-aside {
+        display: none;
+    }
+
+    .auth-card {
+        padding: 28px 20px;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
 }
