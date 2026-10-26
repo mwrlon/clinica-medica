@@ -12,7 +12,11 @@ class SalaAdminController extends Controller
 
     public function store(Request $request)
     {
-        $validated = $request->validate(['numero' => 'required|string', 'bloco' => 'nullable|string']);
+        // A tabela "salas" possui apenas a coluna "identificacao" (ex.: "Consultório 01")
+        $validated = $request->validate([
+            'identificacao' => 'required|string|max:30|unique:salas,identificacao',
+        ]);
+
         return response()->json(Sala::create($validated), 201);
     }
 }

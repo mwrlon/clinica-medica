@@ -12,7 +12,10 @@ class ConvenioAdminController extends Controller
 
     public function store(Request $request)
     {
-        $validated = $request->validate(['nome' => 'required|string']);
+        $validated = $request->validate([
+            'nome' => 'required|string|max:100|unique:convenios,nome',
+        ]);
+
         return response()->json(Convenio::create($validated), 201);
     }
 }

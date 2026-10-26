@@ -23,12 +23,13 @@
                 </ul>
             </nav>
             <div>
-                <img src="{{ asset('images/equipe-rafael-tavares.jpg') }}" alt="Foto Dr. Rafael Tavares">
+                <!-- A foto (images/equipe-<nome>.jpg) é definida por resources/js/scripts/medico.js -->
+                <img data-campo="foto" data-base="{{ asset('images') }}" src="" alt="Foto do médico" hidden>
                 <div>
-                    <strong>Dr. Rafael Tavares</strong>
-                    <span>Pediatra - CRM/RS 45678</span>
+                    <strong data-campo="nome"></strong>
+                    <span data-campo="especialidade"></span>
                 </div>
-                <a href="{{ url('/login') }}">Sair</a>
+                <a id="btn-sair" href="{{ url('/login-medico') }}">Sair</a>
             </div>
         </div>
     </header>
@@ -46,10 +47,10 @@
 
             <div>
                 <h4>Próximo Paciente</h4>
-                <p><strong>Lucas Silva (8 anos)</strong></p>
-                <p>Horário: 14:00 (Em 15 min)</p>
-                <p>Tipo: Consulta de Rotina</p>
-                <button>Chamar Paciente</button>
+                <p><strong data-campo="proximo-nome"></strong></p>
+                <p data-campo="proximo-horario"></p>
+                <p data-campo="proximo-detalhe"></p>
+                <button data-campo="proximo-botao">Chamar Paciente</button>
             </div>
         </aside>
 
@@ -59,23 +60,23 @@
             <div>
                 <div>
                     <h3>Consultas Hoje</h3>
-                    <p>12</p>
-                    <span>4 concluídas · 8 pendentes</span>
+                    <p data-campo="metrica-hoje">—</p>
+                    <span data-campo="metrica-hoje-detalhe"></span>
                 </div>
                 <div>
                     <h3>Taxa de Presença</h3>
-                    <p>95%</p>
-                    <span>+2% em relação ao mês anterior</span>
+                    <p data-campo="metrica-presenca">—</p>
+                    <span data-campo="metrica-presenca-detalhe"></span>
                 </div>
                 <div>
                     <h3>Tempo Médio / Consulta</h3>
-                    <p>28 min</p>
-                    <span>Dentro da meta (30 min)</span>
+                    <p>—</p>
+                    <span>Sem registro de duração das consultas</span>
                 </div>
                 <div>
                     <h3>Avaliação Média</h3>
-                    <p>4.9 / 5.0</p>
-                    <span>Baseado em 48 opiniões</span>
+                    <p>—</p>
+                    <span>Sem avaliações de pacientes ainda</span>
                 </div>
             </div>
 
@@ -97,7 +98,7 @@
             <!-- AGENDA DO DIA -->
             <section id="agenda">
                 <div>
-                    <h2>Agenda de Hoje</h2>
+                    <h2 data-campo="titulo-agenda">Agenda de Hoje</h2>
                     <input type="date" value="{{ date('Y-m-d') }}">
                 </div>
 
@@ -111,43 +112,8 @@
                             <th>Ações</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr>
-                            <td>08:30</td>
-                            <td>Ana Clara Souza</td>
-                            <td>Retorno Exames</td>
-                            <td><span>Concluído</span></td>
-                            <td><button>Ver Prontuário</button></td>
-                        </tr>
-                        <tr>
-                            <td>09:30</td>
-                            <td>Gabriel Santos</td>
-                            <td>Primeira Consulta</td>
-                            <td><span>Concluído</span></td>
-                            <td><button>Ver Prontuário</button></td>
-                        </tr>
-                        <tr>
-                            <td>14:00</td>
-                            <td>Lucas Silva</td>
-                            <td>Acompanhamento Pediátrico</td>
-                            <td><span>Aguardando na Recepção</span></td>
-                            <td><button>Atender Agora</button></td>
-                        </tr>
-                        <tr>
-                            <td>15:00</td>
-                            <td>Mariana Oliveira</td>
-                            <td>Avaliação Geral</td>
-                            <td><span>Agendado</span></td>
-                            <td><button>Ver Prontuário</button></td>
-                        </tr>
-                        <tr>
-                            <td>16:00</td>
-                            <td>Enzo Gabriel Ferraz</td>
-                            <td>Vacinação e Peso</td>
-                            <td><span>Agendado</span></td>
-                            <td><button>Ver Prontuário</button></td>
-                        </tr>
-                    </tbody>
+                    <!-- As linhas da agenda são montadas por resources/js/scripts/medico.js -->
+                    <tbody data-campo="agenda"></tbody>
                 </table>
             </section>
         </section>

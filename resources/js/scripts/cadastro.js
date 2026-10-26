@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { limparErros, mostrarErro, salvarSessao, PAINEL } from '../lib/sessao.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('form-cadastro');
@@ -10,22 +11,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnSubmit = form.querySelector('button[type="submit"]');
     const mensagens = document.getElementById('mensagens');
 
-    function mostrarMensagem(texto) {
-        if (mensagens) mensagens.textContent = texto;
-        else alert(texto);
-    }
-
-    function mostrarErro(campo, texto) {
-        const input = form.querySelector(`[name="${campo}"]`);
-        const container = input?.closest('.field')?.querySelector('.field-error');
-        if (container) container.textContent = texto;
-        else mostrarMensagem(texto);
-    }
-
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        form.querySelectorAll('.field-error').forEach(el => el.textContent = '');
+        limparErros(form);
         if (mensagens) mensagens.textContent = '';
 
         const txtOriginal = btnSubmit?.textContent;
@@ -50,21 +39,22 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await axios.post('/api/cadastrar', payload, {
                 headers: { 'Accept': 'application/json' }
             });
-            localStorage.setItem('token', response.data.access_token);
-            window.location.href = '/paciente';
+
+            salvarSessao(response.data.access_token, 'paciente', true);
+            window.location.href = PAINEL.paciente;
         } catch (error) {
             if (btnSubmit) {
                 btnSubmit.textContent = txtOriginal;
                 btnSubmit.disabled = false;
             }
 
-            if (error.response?.status === 422) {
+            if (error.response?.status === 422 && error.response.data?.errors) {
                 const errors = error.response.data.errors;
                 for (const campo in errors) {
-                    mostrarErro(campo, errors[campo][0]);
+                    mostrarErro(form, campo, errors[campo][0]);
                 }
             } else {
-                mostrarMensagem('Ocorreu um erro inesperado ao tentar cadastrar.');
+                mostrarErro(form, 'mensagem-geral', 'Ocorreu um erro inesperado ao tentar cadastrar.');
             }
         }
     });

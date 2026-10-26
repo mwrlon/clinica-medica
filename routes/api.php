@@ -29,11 +29,11 @@ Route::get('/medicos', [MedicoAdminController::class, 'indexPublico']);
 
 /*
 |--------------------------------------------------------------------------
-| 2. PAINEL ADMINISTRATIVO (Requer Autenticação)
+| 2. PAINEL ADMINISTRATIVO (Requer autenticação e perfil de administrador)
 |--------------------------------------------------------------------------
 */
-Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
-    
+Route::middleware(['auth:sanctum', 'perfil:admin'])->prefix('admin')->group(function () {
+
     // Gestão de Médicos (CRUD)
     Route::get('/medicos', [MedicoAdminController::class, 'index']);
     Route::post('/medicos', [MedicoAdminController::class, 'store']);
@@ -61,8 +61,9 @@ Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
 |--------------------------------------------------------------------------
 */
 Route::middleware('auth:sanctum')->group(function () {
-    
+
     Route::post('/logout', [AuthController::class, 'logout']);
+    Route::get('/perfil', [AuthController::class, 'perfil']);
 
     // Consultas
     Route::get('/consultas', [ConsultaController::class, 'index']);
@@ -71,5 +72,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Exames e Atendimentos
     Route::get('/exames', [ExameController::class, 'index']);
-    Route::post('/atendimentos', [ConsultaController::class, 'registrarAtendimento']); // Exclusivo Médico
+    Route::post('/atendimentos', [ConsultaController::class, 'registrarAtendimento'])
+        ->middleware('perfil:medico'); // Exclusivo Médico
 });

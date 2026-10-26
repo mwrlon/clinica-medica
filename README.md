@@ -1,59 +1,106 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# ProSaúde — Sistema de Clínica Médica
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Aplicação Laravel 12 com páginas em Blade, API REST protegida por Laravel Sanctum (token) e banco **MySQL**.
+Perfis: **paciente**, **médico** e **administrador**.
 
-## About Laravel
+## Requisitos
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- PHP 8.2+ (com `pdo_mysql`, `mbstring`, `bcmath`, `gd`) e Composer
+- Node 20+ e npm (para compilar o CSS/JS com Vite)
+- MySQL 8 (o `docker-compose.yml` já sobe um)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Como rodar com Docker
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+```bash
+cp .env.example .env              # já vem com os dados do MySQL do docker-compose
 
-## Learning Laravel
+docker compose up -d --build
+docker compose exec app composer install
+docker compose exec app php artisan key:generate
+docker compose exec app php artisan migrate --seed
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+npm install && npm run build      # na sua máquina: gera public/build (não é versionado)
+```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Acesse **http://localhost:8000**.
 
-## Laravel Sponsors
+O MySQL também fica disponível na sua máquina em `127.0.0.1:3307`
+(usuário `laravel_user`, senha `laravel_password`, banco `clinica_medica`).
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## Como rodar sem Docker
 
-### Premium Partners
+```bash
+cp .env.example .env
+# ajuste no .env: DB_HOST=127.0.0.1 (e DB_PORT/DB_USERNAME/DB_PASSWORD do seu MySQL)
+composer install
+php artisan key:generate
+php artisan migrate --seed
+npm install && npm run build
+php artisan serve                 # http://127.0.0.1:8000
+```
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+Durante o desenvolvimento, `npm run dev` recompila o front-end automaticamente.
 
-## Contributing
+> **Importante:** `public/build` não é versionado. Sem `npm run build` as páginas dão erro
+> *"Vite manifest not found"*.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## Logins de demonstração
 
-## Code of Conduct
+Criados por `php artisan db:seed` (os dados de exemplo **não** são criados em produção):
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+| Perfil        | E-mail                           | Senha         |
+|---------------|----------------------------------|---------------|
+| Paciente      | `helena@exemplo.com`             | `paciente123` |
+| Médico        | `rafael.tavares@prosaude.com.br` | `medico123`   |
+| Administrador | `admin@prosaude.com.br`          | `admin12345`  |
 
-## Security Vulnerabilities
+Há outros médicos e pacientes de exemplo no `database/seeders/DemoSeeder.php` (todos os médicos usam
+`medico123`). O administrador usa `ADMIN_EMAIL` / `ADMIN_PASSWORD` do `.env`; em produção a senha é obrigatória.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## Variáveis de ambiente importantes
 
-## License
+| Variável                           | Para quê                                                             |
+|------------------------------------|----------------------------------------------------------------------|
+| `DB_HOST`, `DB_PORT`, …            | `db`/`3306` dentro do Docker; `127.0.0.1`/`3307` direto na máquina   |
+| `APP_LOCALE`, `APP_TIMEZONE`       | `pt_BR` e `America/Sao_Paulo` (mensagens de validação e datas)       |
+| `ADMIN_EMAIL`, `ADMIN_PASSWORD`    | Administrador inicial criado pelo seeder                             |
+| `MAIL_MAILER`                      | `log` por padrão: os e-mails são gravados em `storage/logs/laravel.log` |
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### Recuperação de senha
+
+Em `/esqueci-senha` o usuário informa o e-mail e recebe um link de redefinição (válido por tempo limitado e de uso único).
+Com `MAIL_MAILER=log` não há envio real: o e-mail, com o link, aparece em `storage/logs/laravel.log`.
+Para enviar de verdade, configure `MAIL_MAILER=smtp` e as variáveis `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`.
+
+## API
+
+Todas as rotas ficam em `/api` e respondem JSON. Rotas protegidas exigem `Authorization: Bearer <access_token>`.
+
+| Método e rota                                          | Acesso        | Descrição                                  |
+|--------------------------------------------------------|---------------|--------------------------------------------|
+| `POST /api/cadastrar`                                  | público       | Cadastro de paciente (já devolve o token)  |
+| `POST /api/login/paciente` · `/medico` · `/admin`      | público       | Login por perfil (`email`, `senha`)        |
+| `GET /api/especialidades` · `GET /api/medicos`         | público       | Listas para o agendamento                  |
+| `POST /api/logout` · `GET /api/perfil`                 | autenticado   | Encerra a sessão / dados do usuário logado |
+| `GET /api/consultas`                                   | autenticado   | Paciente/médico: as suas · admin: todas    |
+| `POST /api/consultas`                                  | autenticado   | Agenda (paciente só para si; médico só na própria agenda) |
+| `PUT /api/consultas/{id}/cancelar`                     | paciente/médico da consulta ou admin | Cancela e libera o horário |
+| `POST /api/atendimentos`                               | médico        | Registra o atendimento (receita, diagnóstico) |
+| `GET /api/exames`                                      | autenticado   | Paciente: os seus · médico: os que pediu · admin: todos |
+| `/api/admin/*`                                         | administrador | CRUD de médicos, especialidades, convênios e salas |
+
+## Testes
+
+```bash
+php artisan test
+```
+
+Os testes usam SQLite em memória (definido no `phpunit.xml`) e não dependem do MySQL nem de `npm run build`.
+
+## Estrutura
+
+- `app/Http/Controllers/Api` — controllers da API · `app/Http/Middleware/ExigirPerfil.php` — controle por perfil (`perfil:admin|medico|paciente`)
+- `app/Models` — modelos Eloquent (as tabelas usam `criado_em`, sem `updated_at`)
+- `database/migrations`, `database/seeders` — esquema e dados iniciais/de exemplo
+- `resources/views` — páginas Blade · `resources/css` — estilos · `resources/js` — scripts (login, cadastro e painéis)
+- `lang/pt_BR` — mensagens de validação em português

@@ -15,15 +15,23 @@ class RegisterController extends Controller
      */
     public function cadastrarPaciente(Request $request)
     {
+        // O formulário envia "confirmar_senha"; clientes que seguem o padrão do Laravel
+        // enviam "senha_confirmation". Os dois nomes são aceitos.
+        if (blank($request->input('confirmar_senha')) && $request->filled('senha_confirmation')) {
+            $request->merge(['confirmar_senha' => $request->input('senha_confirmation')]);
+        }
+
         // 1. Validação dos dados recebidos
         $validated = $request->validate([
             'nome'            => 'required|string|max:150',
             'cpf'             => 'required|string|max:14|unique:pacientes,cpf',
-            'data_nascimento' => 'required|date',
+            'data_nascimento' => 'required|date|before:today',
             'sexo'            => 'required|in:M,F,Outro',
             'telefone'        => 'required|string|max:20',
             'email'           => 'required|email|max:150|unique:pacientes,email',
-            'senha'           => 'required|string|min:8|confirmed', // Exige o campo 'senha_confirmation'
+            'senha'           => 'required|string|min:8',
+            'confirmar_senha' => 'required|same:senha',
+            'termos'          => 'sometimes|accepted',
             'endereco'        => 'nullable|string|max:255',
             'convenio_id'     => 'nullable|exists:convenios,id',
         ]);
@@ -42,10 +50,11 @@ class RegisterController extends Controller
         ]);
 
         // 3. Emite token para já logar automaticamente após cadastrar (Opcional)
-        $token = $paciente->createToken('auth_token')->plainTextToken;
+        $token = $paciente->createToken('paciente_token')->plainTextToken;
 
         return response()->json([
             'mensagem'     => 'Paciente cadastrado com sucesso!',
+            'perfil'       => 'paciente',
             'usuario'      => $paciente,
             'access_token' => $token,
             'token_type'   => 'Bearer',

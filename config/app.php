@@ -65,7 +65,21 @@ return [
     |
     */
 
-    'timezone' => 'UTC',
+    'timezone' => env('APP_TIMEZONE', 'America/Sao_Paulo'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Administrador inicial
+    |--------------------------------------------------------------------------
+    |
+    | Lidas pelo database/seeders/DatabaseSeeder.php. Ficam aqui (e não em env()
+    | dentro do seeder) para continuarem funcionando após "php artisan config:cache".
+    |
+    */
+
+    'admin_email' => env('ADMIN_EMAIL', 'admin@prosaude.com.br'),
+
+    'admin_password' => env('ADMIN_PASSWORD'),
 
     /*
     |--------------------------------------------------------------------------
@@ -78,7 +92,7 @@ return [
     |
     */
 
-    'locale' => env('APP_LOCALE', 'en'),
+    'locale' => env('APP_LOCALE', 'pt_BR'),
 
     'fallback_locale' => env('APP_FALLBACK_LOCALE', 'en'),
 

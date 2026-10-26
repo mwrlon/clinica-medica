@@ -3,82 +3,47 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Administrador;
 use App\Models\Medico;
 use App\Models\Paciente;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use App\Models\Administrador;
+use Illuminate\Validation\ValidationException;
 
-class AuthController extends Controller {
-    public function loginAdmin(Request $request){
-    $request->validate([
-        'email' => 'required|email',
-        'senha' => 'required',
-    ]);
-
-    $admin = Administrador::where('email', $request->email)->first();
-
-    if (!$admin || !Hash::check($request->senha, $admin->senha_hash)) {
-        return response()->json([
-            'mensagem' => 'Credenciais administrativas inválidas.'
-        ], 412);
+class AuthController extends Controller
+{
+    public function loginPaciente(Request $request): JsonResponse
+    {
+        return $this->autenticar($request, Paciente::class, 'paciente');
     }
 
-    $token = $admin->createToken('admin_token')->plainTextToken;
-
-    return response()->json([
-        'mensagem'     => 'Bem-vindo(a), ' . $admin->nome,
-        'perfil'       => 'admin',
-        'usuario'      => $admin,
-        'access_token' => $token,
-        'token_type'   => 'Bearer',
-    ]);
+    public function loginMedico(Request $request): JsonResponse
+    {
+        return $this->autenticar($request, Medico::class, 'medico');
     }
 
-    public function login(Request $request){
-        // 1. Validar os dados de entrada
+    public function loginAdmin(Request $request): JsonResponse
+    {
+        return $this->autenticar($request, Administrador::class, 'admin');
+    }
+
+    /**
+     * Login genérico (o perfil vem no campo "tipo"). Mantido por compatibilidade.
+     */
+    public function login(Request $request): JsonResponse
+    {
         $request->validate([
-            'email' => 'required|email',
-            'senha' => 'required',
-            'tipo'  => 'required|in:paciente,medico', // Define quem está tentando logar
+            'tipo' => 'required|in:paciente,medico',
         ]);
 
-        // 2. Identificar a tabela com base no tipo
-        $model = $request->tipo === 'medico' ? Medico::class : Paciente::class;
-        $usuario = $model::where('email', $request->email)->first();
-
-        // 3. Verificar se o usuário existe e se a senha confere
-        if (!$usuario || !Hash::check($request->senha, $usuario->senha_hash)) {
-            return response()->json([
-                'mensagem' => 'Credenciais inválidas. Verifique e-mail e senha.'
-            ], 412);
-        }
-
-        // 4. Se for médico, verificar se está ativo
-        if ($request->tipo === 'medico' && $usuario->status !== 'ativo') {
-            return response()->json([
-                'mensagem' => 'Acesso negado. Cadastro inativo.'
-            ], 403);
-        }
-
-        // 5. Criar o Token de Acesso da API
-        $token = $usuario->createToken('auth_token')->plainTextToken;
-
-        // 6. Retornar resposta JSON
-        return response()->json([
-            'mensagem' => 'Login realizado com sucesso!',
-            'tipo'     => $request->tipo,
-            'usuario'  => [
-                'id'    => $usuario->id,
-                'nome'  => $usuario->nome,
-                'email' => $usuario->email,
-            ],
-            'access_token' => $token,
-            'token_type'   => 'Bearer'
-        ], 200);
+        return $request->tipo === 'medico'
+            ? $this->loginMedico($request)
+            : $this->loginPaciente($request);
     }
 
-    public function logout(Request $request){
+    public function logout(Request $request): JsonResponse
+    {
         // Revoga o token atual do usuário logado
         $request->user()->currentAccessToken()->delete();
 
@@ -86,7 +51,75 @@ class AuthController extends Controller {
             'mensagem' => 'Sessão encerrada com sucesso!'
         ]);
     }
+
+    /**
+     * Dados do usuário autenticado (usado para preencher os painéis).
+     */
+    public function perfil(Request $request): JsonResponse
+    {
+        $usuario = $request->user();
+
+        if ($usuario instanceof Medico) {
+            $usuario->load('especialidade');
+        } elseif ($usuario instanceof Paciente) {
+            $usuario->load('convenio');
+        }
+
+        return response()->json([
+            'perfil'  => $this->nomeDoPerfil($usuario),
+            'usuario' => $usuario,
+        ]);
+    }
+
+    /**
+     * Valida as credenciais no model informado e emite o token de acesso.
+     *
+     * Credenciais inválidas respondem 422 (campo "email"), que é o que o front-end
+     * já espera; médico inativo responde 403.
+     */
+    private function autenticar(Request $request, string $model, string $perfil): JsonResponse
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'senha' => 'required',
+        ]);
+
+        $usuario = $model::where('email', $request->email)->first();
+
+        if (!$usuario || !Hash::check($request->senha, $usuario->senha_hash)) {
+            throw ValidationException::withMessages([
+                'email' => ['Credenciais inválidas. Verifique e-mail e senha.'],
+            ]);
+        }
+
+        if ($usuario instanceof Medico && $usuario->status !== 'ativo') {
+            return response()->json([
+                'mensagem' => 'Acesso negado. Cadastro inativo.'
+            ], 403);
+        }
+
+        if ($usuario instanceof Medico) {
+            $usuario->load('especialidade');
+        }
+
+        $token = $usuario->createToken($perfil . '_token')->plainTextToken;
+
+        return response()->json([
+            'mensagem'     => 'Login realizado com sucesso!',
+            'perfil'       => $perfil,
+            'usuario'      => $usuario,
+            'access_token' => $token,
+            'token_type'   => 'Bearer',
+        ]);
+    }
+
+    private function nomeDoPerfil($usuario): ?string
+    {
+        return match (true) {
+            $usuario instanceof Administrador => 'admin',
+            $usuario instanceof Medico        => 'medico',
+            $usuario instanceof Paciente      => 'paciente',
+            default                           => null,
+        };
+    }
 }
-
-
-

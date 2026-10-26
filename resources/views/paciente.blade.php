@@ -24,10 +24,10 @@
             </nav>
             <div>
                 <div>
-                    <strong>Helena Marques</strong>
-                    <span>CPF: 123.456.789-00</span>
+                    <strong data-campo="nome"></strong>
+                    <span data-campo="cpf"></span>
                 </div>
-                <a href="{{ url('/login') }}">Sair</a>
+                <a id="btn-sair" href="{{ url('/login') }}">Sair</a>
             </div>
         </div>
     </header>
@@ -39,23 +39,14 @@
             
             <div>
                 <h3>Plano ProSaúde</h3>
-                <p><strong>Nº Carteira:</strong> 987654321-0</p>
-                <p><strong>Titular:</strong> Helena Marques</p>
+                <p data-campo="convenio"></p>
+                <p data-campo="titular"></p>
                 <span>Ativo</span>
             </div>
 
             <div>
                 <h4>Lembretes de Medicamentos</h4>
-                <ul>
-                    <li>
-                        <strong>Omeprazol 20mg</strong>
-                        <p>1 comprimido às 08:00 (Jejum)</p>
-                    </li>
-                    <li>
-                        <strong>Vitamina D 2000UI</strong>
-                        <p>1 cápsula no Almoço</p>
-                    </li>
-                </ul>
+                <ul data-campo="lembretes"></ul>
             </div>
         </aside>
 
@@ -63,56 +54,21 @@
         <section>
             <!-- BOAS VINDAS -->
             <div>
-                <h2>Olá, Helena! 👋</h2>
+                <h2 data-campo="saudacao">Olá! 👋</h2>
                 <p>Acompanhe aqui seus próximos agendamentos, exames e receitas médicas.</p>
             </div>
 
             <!-- PROXIMAS CONSULTAS -->
             <section id="consultas">
-                <h2>Próxima Consulta</h2>
-                <div>
-                    <div>
-                        <h3>Dra. Marina Ferraz</h3>
-                        <p>Cardiologia</p>
-                        <p><strong>Data:</strong> 15 de Outubro de 2026 às 10:30</p>
-                        <p><strong>Local:</strong> ProSaúde — Rua das Acadias, 482 (Erechim, RS)</p>
-                    </div>
-                    <div>
-                        <button>Reagendar</button>
-                        <button>Cancelar</button>
-                    </div>
-                </div>
+                <h2 data-campo="titulo-consultas">Próxima Consulta</h2>
+                <!-- Os cartões das consultas são montados por resources/js/scripts/paciente.js -->
             </section>
 
             <!-- HISTÓRICO RECENTE DE EXAMES E RECEITAS -->
             <section id="exames">
                 <h2>Exames e Receitas Recentes</h2>
-                <div>
-                    <div>
-                        <div>📄</div>
-                        <div>
-                            <h4>Hemograma Completo</h4>
-                            <p>Realizado em: 28/09/2026</p>
-                            <a href="#">Download Resultado (PDF)</a>
-                        </div>
-                    </div>
-                    <div>
-                        <div>💊</div>
-                        <div>
-                            <h4>Receita Médica Digital</h4>
-                            <p>Emitida por: Dr. Rafael Tavares</p>
-                            <a href="#">Ver Receita Digital</a>
-                        </div>
-                    </div>
-                    <div>
-                        <div>🫀</div>
-                        <div>
-                            <h4>Eletrocardiograma</h4>
-                            <p>Realizado em: 10/08/2026</p>
-                            <a href="#">Download Laudo (PDF)</a>
-                        </div>
-                    </div>
-                </div>
+                <!-- Os cartões de exames e receitas são montados por resources/js/scripts/paciente.js -->
+                <div data-campo="lista-exames"></div>
             </section>
 
             <!-- EVOLUÇÃO DE INDICADORES DE SAÚDE DO PACIENTE -->
@@ -121,7 +77,8 @@
                 <div>
                     <div>
                         <h3>Evolução da Pressão Arterial (Sistólica/Diastólica)</h3>
-                        <canvas></canvas>
+                        <!-- O sistema ainda não registra medições de pressão: sem gráfico, evita uma caixa vazia -->
+                        <p>Ainda não há medições de pressão arterial registradas.</p>
                     </div>
                 </div>
             </section>

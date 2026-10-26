@@ -102,7 +102,7 @@
                         </div>
 
                         <div class="field">
-                            <label for="confirmar-senha">Confirmar senha</label>
+                            <label for="confirmar_senha">Confirmar senha</label>
                             <input type="password" id="confirmar_senha" name="confirmar_senha" placeholder="Repita a senha" minlength="8" autocomplete="new-password" required>
                             @error('confirmar_senha')<span class="field-error">{{ $message }}</span>@enderror
                         </div>

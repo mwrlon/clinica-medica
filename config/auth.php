@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\User;
+use App\Models\Paciente;
 
 return [
 
@@ -64,7 +64,9 @@ return [
     'providers' => [
         'users' => [
             'driver' => 'eloquent',
-            'model' => env('AUTH_MODEL', User::class),
+            // O projeto não possui o model "User" padrão do Laravel: pacientes, médicos e
+            // administradores autenticam por token (Sanctum), cada um com seu próprio model.
+            'model' => env('AUTH_MODEL', Paciente::class),
         ],
 
         // 'users' => [
