@@ -91,3 +91,73 @@ export function slugDoNome(nome) {
         .trim()
         .replace(/\s+/g, '-');
 }
+
+/** "Helena Souza Marques" -> "HM" (iniciais do primeiro e do último nome, para avatares) */
+export function iniciais(nome) {
+    const partes = (nome ?? '')
+        .replace(/^(dr|dra)\.?\s+/i, '')
+        .split(/\s+/)
+        .filter(Boolean);
+
+    if (partes.length === 0) return '?';
+    if (partes.length === 1) return partes[0][0].toUpperCase();
+    return (partes[0][0] + partes[partes.length - 1][0]).toUpperCase();
+}
+
+/**
+ * Destaca no menu a seção que está na tela (classe "ativo" no link do .link-nav).
+ * A seção atual é a última cujo topo já passou do cabeçalho; no fim da página vale a última.
+ */
+export function ativarMenuPorSecao() {
+    const pares = [...document.querySelectorAll('.link-nav a[href^="#"]')]
+        .map((link) => [link, document.querySelector(link.getAttribute('href'))])
+        .filter(([, secao]) => secao);
+
+    if (pares.length === 0) return;
+
+    let agendado = false;
+    let travadoAte = 0; // depois de um clique no menu, a rolagem não troca o link por um instante
+
+    const atualizar = () => {
+        agendado = false;
+        if (Date.now() < travadoAte) return;
+        const limite = (document.querySelector('.site-header')?.offsetHeight ?? 70) + 32;
+
+        let atual = pares[0][0];
+        for (const [link, secao] of pares) {
+            if (secao.getBoundingClientRect().top <= limite) atual = link;
+        }
+
+        const noFim = window.scrollY > 0
+            && window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4;
+        if (noFim) atual = pares[pares.length - 1][0];
+
+        pares.forEach(([link]) => link.classList.toggle('ativo', link === atual));
+    };
+
+    const agendar = () => {
+        if (!agendado) {
+            agendado = true;
+            requestAnimationFrame(atualizar);
+        }
+    };
+
+    // Em páginas curtas a rolagem não chega a levar a seção clicada ao topo (e no fim vale a última):
+    // o link clicado fica destacado enquanto a rolagem suave termina.
+    pares.forEach(([link]) => link.addEventListener('click', () => {
+        travadoAte = Date.now() + 900;
+        pares.forEach(([outro]) => outro.classList.toggle('ativo', outro === link));
+    }));
+
+    window.addEventListener('scroll', agendar, { passive: true });
+    window.addEventListener('resize', agendar);
+    atualizar();
+}
+
+const DIAS_DA_SEMANA = ['domingo', 'segunda-feira', 'terça-feira', 'quarta-feira', 'quinta-feira', 'sexta-feira', 'sábado'];
+
+/** "2026-10-26" -> "segunda-feira" */
+export function diaDaSemana(iso) {
+    const [ano, mes, dia] = iso.slice(0, 10).split('-').map(Number);
+    return DIAS_DA_SEMANA[new Date(ano, mes - 1, dia).getDay()];
+}

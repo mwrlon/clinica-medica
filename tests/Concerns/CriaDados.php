@@ -89,4 +89,16 @@ trait CriaDados
     {
         return now()->addDays($dias)->toDateString();
     }
+
+    /** Primeiro dia útil (seg-sex) daqui a pelo menos $minDias dias: o paciente só marca no expediente. */
+    protected function proximoDiaUtil(int $minDias = 2): string
+    {
+        $dia = now()->addDays($minDias);
+
+        while ($dia->isWeekend()) {
+            $dia = $dia->addDay();
+        }
+
+        return $dia->toDateString();
+    }
 }

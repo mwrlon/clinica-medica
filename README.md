@@ -83,11 +83,34 @@ Todas as rotas ficam em `/api` e respondem JSON. Rotas protegidas exigem `Author
 | `GET /api/especialidades` · `GET /api/medicos`         | público       | Listas para o agendamento                  |
 | `POST /api/logout` · `GET /api/perfil`                 | autenticado   | Encerra a sessão / dados do usuário logado |
 | `GET /api/consultas`                                   | autenticado   | Paciente/médico: as suas · admin: todas    |
-| `POST /api/consultas`                                  | autenticado   | Agenda (paciente só para si; médico só na própria agenda) |
+| `POST /api/consultas`                                  | autenticado   | Agenda (paciente só para si; médico só na própria agenda). `sala_id` é opcional: sem ele, a primeira sala livre é usada |
 | `PUT /api/consultas/{id}/cancelar`                     | paciente/médico da consulta ou admin | Cancela e libera o horário |
+| `PUT /api/consultas/{id}/reagendar`                    | paciente/médico da consulta ou admin | Muda `data` e `hora` (mesmo médico) |
+| `GET /api/medicos/{id}/horarios?data=AAAA-MM-DD`       | autenticado   | Horários livres do médico no dia (`ignorar={consulta}` ao reagendar) |
+| `GET /api/pacientes?busca=…`                           | médico/admin  | Busca por nome ou CPF (3+ letras, até 10 resultados) para marcar encaixes |
 | `POST /api/atendimentos`                               | médico        | Registra o atendimento (receita, diagnóstico) |
 | `GET /api/exames`                                      | autenticado   | Paciente: os seus · médico: os que pediu · admin: todos |
 | `/api/admin/*`                                         | administrador | CRUD de médicos, especialidades, convênios e salas |
+
+### Horário de atendimento
+
+A grade de horários fica em `config/clinica.php`: segunda a sexta das 07:00 às 19:00, sábado das 08:00 às 12:00, domingo fechado,
+consultas de 30 em 30 minutos (é o que o site informa). O **paciente** só marca dentro dessa grade; o **médico** pode marcar
+*encaixes* fora dela. Horários que já passaram são recusados para todos. A sala é escolhida automaticamente
+(a primeira livre no horário) e uma consulta cancelada libera médico, paciente e sala.
+
+## Painéis
+
+Os dois painéis usam o mesmo visual da página inicial (`resources/css/painel-base.css` reaproveita as cores, fontes e componentes do `index.css`;
+`paciente.css` e `medico.css` só trazem o que é específico de cada tela).
+
+- **Paciente** (`/paciente`): *Agendar Nova Consulta* (especialidade → médico → dia → horário livre), *Reagendar* e *Cancelar* (com confirmação).
+- **Médico** (`/medico`): agenda por dia, *Atender Agora* (diagnóstico, receita e exames), *Ver Prontuário*, *Nova Consulta Encaixe*,
+  *Emitir Receita Médica* e *Solicitar Exames* (abrem o atendimento de uma consulta pendente), *Chamar Paciente*, *Meus Pacientes* e
+  *Atestados / Laudos*. O atestado/laudo é um documento para **imprimir ou salvar em PDF** pelo navegador (não fica gravado no sistema).
+
+O código dos botões está em `resources/js/scripts/paciente.js` e `medico.js`, com as peças compartilhadas em `resources/js/lib`
+(`ui.js`: janelas, confirmação e avisos; `horarios.js`: escolha de data e horário).
 
 ## Testes
 
@@ -96,11 +119,14 @@ php artisan test
 ```
 
 Os testes usam SQLite em memória (definido no `phpunit.xml`) e não dependem do MySQL nem de `npm run build`.
+Crie o `.env` antes (`cp .env.example .env`): sem ele os testes passam, mas o `php artisan test` mostra avisos
+sobre o arquivo `.env` inexistente (`vendor/bin/phpunit` não tem esse problema).
 
 ## Estrutura
 
 - `app/Http/Controllers/Api` — controllers da API · `app/Http/Middleware/ExigirPerfil.php` — controle por perfil (`perfil:admin|medico|paciente`)
 - `app/Models` — modelos Eloquent (as tabelas usam `criado_em`, sem `updated_at`)
 - `database/migrations`, `database/seeders` — esquema e dados iniciais/de exemplo
+- `app/Support/AgendaClinica.php` — regras de horário e de sala · `config/clinica.php` — expediente da clínica
 - `resources/views` — páginas Blade · `resources/css` — estilos · `resources/js` — scripts (login, cadastro e painéis)
 - `lang/pt_BR` — mensagens de validação em português

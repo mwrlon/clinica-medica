@@ -44,6 +44,51 @@ class PaginasTest extends TestCase
         $this->get('/medico')->assertDontSee('Lucas Silva')->assertDontSee('95%');
     }
 
+    #[DataProvider('paineis')]
+    public function test_links_do_menu_dos_paineis_apontam_para_secoes_que_existem(string $url): void
+    {
+        // Regressão: o menu do médico tinha "Meus Pacientes" (#pacientes) sem seção correspondente
+        $html = $this->get($url)->assertOk()->getContent();
+
+        preg_match_all('/<a href="#([\w-]+)"/', $html, $links);
+        $this->assertNotEmpty($links[1]);
+
+        foreach ($links[1] as $id) {
+            $this->assertStringContainsString("id=\"{$id}\"", $html, "O link #{$id} não tem seção na página {$url}");
+        }
+    }
+
+    public static function paineis(): array
+    {
+        return [
+            'painel do paciente' => ['/paciente'],
+            'painel do médico'   => ['/medico'],
+        ];
+    }
+
+    #[DataProvider('paineis')]
+    public function test_paineis_usam_o_visual_do_index_e_tem_os_botoes_de_acao(string $url): void
+    {
+        $this->get($url)
+            ->assertOk()
+            ->assertSee('<h1', false)           // saudação em h1, estilizado como o do index
+            ->assertSee('class="site-header"', false)
+            ->assertSee('btn btn-primary', false)
+            ->assertSee('id="btn-sair"', false);
+    }
+
+    public function test_botoes_de_acao_dos_paineis_existem(): void
+    {
+        $this->get('/paciente')->assertSee('id="btn-agendar"', false);
+
+        $this->get('/medico')
+            ->assertSee('id="btn-encaixe"', false)
+            ->assertSee('id="btn-receita"', false)
+            ->assertSee('id="btn-exames"', false)
+            ->assertSee('id="btn-atestado"', false)
+            ->assertSee('id="area-impressao"', false);
+    }
+
     public function test_pagina_inexistente_responde_404(): void
     {
         $this->get('/nao-existe')->assertNotFound();

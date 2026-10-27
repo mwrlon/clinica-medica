@@ -8,6 +8,8 @@ use App\Models\Atendimento;
 use App\Models\Consulta;
 use App\Models\Medico;
 use App\Models\Paciente;
+use App\Models\Sala;
+use App\Support\AgendaClinica;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -33,6 +35,7 @@ class ConsultaController extends Controller
                 'medico:id,nome,crm,especialidade_id',
                 'medico.especialidade',
                 'paciente:id,nome,cpf,data_nascimento,sexo,telefone,email,convenio_id',
+                'paciente.convenio:id,nome',
                 'sala',
                 'atendimento:id,consulta_id,diagnostico,receita,observacoes',
             ]);
@@ -57,8 +60,10 @@ class ConsultaController extends Controller
     /**
      * Agendar uma nova consulta.
      *
-     * O paciente só agenda para si mesmo e o médico só agenda na própria agenda:
-     * os ids vindos do cliente são ignorados nesses casos.
+     * O paciente só agenda para si mesmo e o médico só na própria agenda: os ids vindos do
+     * cliente são ignorados nesses casos. A sala é opcional: sem ela, a primeira sala livre
+     * no horário é escolhida. O paciente só pode marcar nos horários do expediente da clínica
+     * (config/clinica.php); o médico pode fazer encaixes fora da grade.
      */
     public function store(Request $request): JsonResponse
     {
@@ -73,11 +78,15 @@ class ConsultaController extends Controller
         $validated = $request->validate([
             'medico_id'   => ['required', Rule::exists('medicos', 'id')->where('status', 'ativo')],
             'paciente_id' => 'required|exists:pacientes,id',
-            'sala_id'     => 'required|exists:salas,id',
+            'sala_id'     => 'nullable|exists:salas,id',
             'data'        => 'required|date_format:Y-m-d|after_or_equal:today',
             'hora'        => 'required|date_format:H:i',
             'observacoes' => 'nullable|string|max:2000',
         ]);
+
+        if ($erro = $this->horarioInvalido($user, $validated['data'], $validated['hora'])) {
+            return response()->json(['mensagem' => $erro], 422);
+        }
 
         try {
             $consulta = $this->agendar($validated);
@@ -92,8 +101,29 @@ class ConsultaController extends Controller
 
         return response()->json([
             'mensagem' => 'Consulta agendada com sucesso!',
-            'consulta' => $consulta->load(['medico:id,nome,crm,especialidade_id', 'paciente:id,nome', 'sala']),
+            'consulta' => $this->completa($consulta),
         ], 201);
+    }
+
+    /**
+     * Mensagem de erro se o horário não puder ser usado por este usuário (ou null se estiver ok).
+     */
+    private function horarioInvalido($user, string $data, string $hora): ?string
+    {
+        if (AgendaClinica::jaPassou($data, $hora)) {
+            return 'Este horário já passou. Escolha uma data e hora futuras.';
+        }
+
+        if ($user instanceof Paciente && !AgendaClinica::dentroDoExpediente($data, $hora)) {
+            return 'Horário fora do atendimento da clínica. Escolha um dos horários disponíveis.';
+        }
+
+        return null;
+    }
+
+    private function completa(Consulta $consulta): Consulta
+    {
+        return $consulta->load(['medico:id,nome,crm,especialidade_id', 'medico.especialidade', 'paciente:id,nome', 'sala']);
     }
 
     /**
@@ -102,33 +132,54 @@ class ConsultaController extends Controller
     private function agendar(array $validated): Consulta|string
     {
         return DB::transaction(function () use ($validated) {
-            // Choque de horário do médico (consultas canceladas liberam o horário)
-            $medicoOcupado = Consulta::where('medico_id', $validated['medico_id'])
-                ->where('data', $validated['data'])
-                ->where('hora', $validated['hora'])
-                ->where('status', '!=', 'cancelada')
-                ->lockForUpdate()
-                ->exists();
-
-            if ($medicoOcupado) {
-                return 'O médico já possui uma consulta agendada para este dia e horário.';
+            if ($erro = $this->conflito($validated['medico_id'], $validated['paciente_id'], $validated['data'], $validated['hora'])) {
+                return $erro;
             }
 
-            // Choque de horário do paciente
-            $pacienteOcupado = Consulta::where('paciente_id', $validated['paciente_id'])
-                ->where('data', $validated['data'])
-                ->where('hora', $validated['hora'])
-                ->where('status', '!=', 'cancelada')
-                ->lockForUpdate()
-                ->exists();
-
-            if ($pacienteOcupado) {
-                return 'O paciente já possui uma consulta agendada para este mesmo horário.';
+            $sala = $this->escolherSala($validated['data'], $validated['hora'], $validated['sala_id'] ?? null);
+            if (is_string($sala)) {
+                return $sala;
             }
 
             // refresh(): traz os valores padrão do banco (status "agendada", criado_em) para a resposta
-            return Consulta::create($validated)->refresh();
+            return Consulta::create(array_merge($validated, ['sala_id' => $sala->id]))->refresh();
         });
+    }
+
+    /**
+     * Choque de horário do médico e do paciente (consultas canceladas liberam o horário).
+     * $ignorarConsultaId = consulta que está sendo reagendada.
+     */
+    private function conflito(int $medicoId, int $pacienteId, string $data, string $hora, ?int $ignorarConsultaId = null): ?string
+    {
+        $ativa = fn () => Consulta::where('data', $data)
+            ->where('hora', $hora)
+            ->where('status', '!=', 'cancelada')
+            ->when($ignorarConsultaId, fn ($q) => $q->where('id', '!=', $ignorarConsultaId))
+            ->lockForUpdate();
+
+        if ($ativa()->where('medico_id', $medicoId)->exists()) {
+            return 'O médico já possui uma consulta agendada para este dia e horário.';
+        }
+
+        if ($ativa()->where('paciente_id', $pacienteId)->exists()) {
+            return 'O paciente já possui uma consulta agendada para este mesmo horário.';
+        }
+
+        return null;
+    }
+
+    /** A sala pedida (se estiver livre) ou a primeira sala livre; texto de erro se não houver. */
+    private function escolherSala(string $data, string $hora, ?int $preferidaId, ?int $ignorarConsultaId = null): Sala|string
+    {
+        $ocupadas = AgendaClinica::salasOcupadas($data, $hora, $ignorarConsultaId, travar: true);
+
+        if ($preferidaId && in_array($preferidaId, $ocupadas, true)) {
+            return 'A sala escolhida já está ocupada neste horário.';
+        }
+
+        return AgendaClinica::salaLivre($data, $hora, $preferidaId, $ignorarConsultaId)
+            ?? 'Não há sala disponível neste horário. Escolha outro horário.';
     }
 
     /**
@@ -139,14 +190,7 @@ class ConsultaController extends Controller
         $user = $request->user();
         $consulta = Consulta::findOrFail($id);
 
-        $permitido = match (true) {
-            $user instanceof Administrador => true,
-            $user instanceof Medico        => $consulta->medico_id === $user->id,
-            $user instanceof Paciente      => $consulta->paciente_id === $user->id,
-            default                        => false,
-        };
-
-        if (!$permitido) {
+        if (!$this->podeGerenciar($user, $consulta)) {
             return response()->json(['mensagem' => 'Você não tem permissão para cancelar esta consulta.'], 403);
         }
 
@@ -157,6 +201,85 @@ class ConsultaController extends Controller
         $consulta->update(['status' => 'cancelada']);
 
         return response()->json(['mensagem' => 'Consulta cancelada com sucesso.']);
+    }
+
+    /**
+     * Reagendar uma consulta ainda agendada para outro dia/horário (mesmo médico).
+     * Quem pode: o paciente ou o médico da consulta, ou um administrador.
+     * Mantém a sala atual se ela estiver livre no novo horário; senão escolhe outra.
+     */
+    public function reagendar(Request $request, $id): JsonResponse
+    {
+        $user = $request->user();
+        $consulta = Consulta::findOrFail($id);
+
+        if (!$this->podeGerenciar($user, $consulta)) {
+            return response()->json(['mensagem' => 'Você não tem permissão para reagendar esta consulta.'], 403);
+        }
+
+        $validated = $request->validate([
+            'data' => 'required|date_format:Y-m-d|after_or_equal:today',
+            'hora' => 'required|date_format:H:i',
+        ]);
+
+        if ($consulta->status !== 'agendada') {
+            return response()->json(['mensagem' => 'Só é possível reagendar consultas que ainda estão agendadas.'], 422);
+        }
+
+        $mesmoHorario = $consulta->data->format('Y-m-d') === $validated['data']
+            && substr($consulta->hora, 0, 5) === $validated['hora'];
+
+        if ($mesmoHorario) {
+            return response()->json(['mensagem' => 'Escolha um dia ou horário diferente do atual.'], 422);
+        }
+
+        if ($erro = $this->horarioInvalido($user, $validated['data'], $validated['hora'])) {
+            return response()->json(['mensagem' => $erro], 422);
+        }
+
+        try {
+            $resultado = DB::transaction(function () use ($consulta, $validated) {
+                if ($erro = $this->conflito($consulta->medico_id, $consulta->paciente_id, $validated['data'], $validated['hora'], $consulta->id)) {
+                    return $erro;
+                }
+
+                // Prefere continuar na mesma sala; se ela estiver ocupada, usa a primeira livre
+                $sala = AgendaClinica::salaLivre($validated['data'], $validated['hora'], $consulta->sala_id, $consulta->id, travar: true);
+                if (!$sala) {
+                    return 'Não há sala disponível neste horário. Escolha outro horário.';
+                }
+
+                $consulta->update([
+                    'data'    => $validated['data'],
+                    'hora'    => $validated['hora'],
+                    'sala_id' => $sala->id,
+                ]);
+
+                return $consulta;
+            });
+        } catch (UniqueConstraintViolationException) {
+            return response()->json(['mensagem' => 'Este horário acabou de ser ocupado. Escolha outro horário.'], 422);
+        }
+
+        if (is_string($resultado)) {
+            return response()->json(['mensagem' => $resultado], 422);
+        }
+
+        return response()->json([
+            'mensagem' => 'Consulta reagendada com sucesso!',
+            'consulta' => $this->completa($resultado->refresh()),
+        ]);
+    }
+
+    /** Paciente ou médico da consulta, ou administrador. */
+    private function podeGerenciar($user, Consulta $consulta): bool
+    {
+        return match (true) {
+            $user instanceof Administrador => true,
+            $user instanceof Medico        => $consulta->medico_id === $user->id,
+            $user instanceof Paciente      => $consulta->paciente_id === $user->id,
+            default                        => false,
+        };
     }
 
     /**

@@ -9,6 +9,8 @@ use App\Http\Controllers\Api\Admin\EspecialidadeAdminController;
 use App\Http\Controllers\Api\Admin\SalaAdminController;
 use App\Http\Controllers\Api\Admin\ConvenioAdminController;
 use App\Http\Controllers\Api\ExameController;
+use App\Http\Controllers\Api\AgendaController;
+use App\Http\Controllers\Api\PacienteController;
 
 /*
 |--------------------------------------------------------------------------
@@ -69,6 +71,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/consultas', [ConsultaController::class, 'index']);
     Route::post('/consultas', [ConsultaController::class, 'store']);
     Route::put('/consultas/{id}/cancelar', [ConsultaController::class, 'cancelar']);
+    Route::put('/consultas/{id}/reagendar', [ConsultaController::class, 'reagendar']);
+
+    // Horários livres de um médico em um dia (para agendar e reagendar)
+    Route::get('/medicos/{id}/horarios', [AgendaController::class, 'horarios']);
+
+    // Busca de pacientes por nome/CPF (para o médico marcar encaixes)
+    Route::get('/pacientes', [PacienteController::class, 'index'])
+        ->middleware('perfil:medico,admin');
 
     // Exames e Atendimentos
     Route::get('/exames', [ExameController::class, 'index']);

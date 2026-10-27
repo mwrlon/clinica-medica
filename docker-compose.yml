@@ -3,12 +3,12 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile
-    image: prosaude
-    container_name: prosaude
+    image: laravel-app
+    container_name: laravel_app
     restart: unless-stopped
-    working_dir: /var/www/prosaude
+    working_dir: /var/www/fernandomm.com/clinica-medica
     volumes:
-      - .:/var/www/prosaude
+      - .:/var/www/fernandomm.com/clinica-medica
     depends_on:
       - db
     networks:
@@ -21,7 +21,7 @@ services:
     ports:
       - "8000:80"
     volumes:
-      - .:/var/www/prosaude
+      - .:/var/www/fernandomm.com/clinica-medica
       - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
     depends_on:
       - app
@@ -34,9 +34,9 @@ services:
     restart: unless-stopped
     environment:
       MYSQL_DATABASE: clinica_medica
-      MYSQL_ROOT_PASSWORD: 12341234
-      MYSQL_USER: prosaude
-      MYSQL_PASSWORD: prosaude123
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_USER: laravel_user
+      MYSQL_PASSWORD: laravel_password
     ports:
       - "3307:3306"
     volumes:

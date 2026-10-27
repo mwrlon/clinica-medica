@@ -17,7 +17,7 @@ class ConsultasTest extends TestCase
         return array_merge([
             'medico_id' => $medico->id,
             'sala_id'   => $sala->id,
-            'data'      => $this->amanha(2),
+            'data'      => $this->proximoDiaUtil(),
             'hora'      => '09:30',
         ], $extra);
     }
@@ -68,7 +68,7 @@ class ConsultasTest extends TestCase
     public function test_horario_ocupado_do_medico_e_recusado(): void
     {
         $medico = $this->medico();
-        $this->consulta($medico, $this->paciente(), ['data' => $this->amanha(2), 'hora' => '09:30']);
+        $this->consulta($medico, $this->paciente(), ['data' => $this->proximoDiaUtil(), 'hora' => '09:30']);
 
         Sanctum::actingAs($this->paciente());
         $this->postJson('/api/consultas', $this->payload($medico, $this->sala()))
@@ -79,7 +79,7 @@ class ConsultasTest extends TestCase
     public function test_paciente_nao_pode_ter_duas_consultas_no_mesmo_horario(): void
     {
         $paciente = $this->paciente();
-        $this->consulta($this->medico(), $paciente, ['data' => $this->amanha(2), 'hora' => '09:30']);
+        $this->consulta($this->medico(), $paciente, ['data' => $this->proximoDiaUtil(), 'hora' => '09:30']);
 
         Sanctum::actingAs($paciente);
         $this->postJson('/api/consultas', $this->payload($this->medico(), $this->sala()))
@@ -158,12 +158,12 @@ class ConsultasTest extends TestCase
         $outra = $this->paciente();
 
         $this->consulta($medico, $helena, ['data' => $this->amanha(5), 'hora' => '08:00']);
-        $this->consulta($medico, $helena, ['data' => $this->amanha(2), 'hora' => '15:00']);
-        $this->consulta($this->medico(), $outra, ['data' => $this->amanha(2), 'hora' => '09:00']);
+        $this->consulta($medico, $helena, ['data' => $this->proximoDiaUtil(), 'hora' => '15:00']);
+        $this->consulta($this->medico(), $outra, ['data' => $this->proximoDiaUtil(), 'hora' => '09:00']);
 
         Sanctum::actingAs($helena);
         $resposta = $this->getJson('/api/consultas')->assertOk()->assertJsonCount(2);
-        $this->assertSame([$this->amanha(2), $this->amanha(5)], array_column($resposta->json(), 'data'));
+        $this->assertSame([$this->proximoDiaUtil(), $this->amanha(5)], array_column($resposta->json(), 'data'));
         $resposta->assertJsonStructure([['id', 'data', 'hora', 'status', 'medico' => ['nome'], 'sala']]);
 
         // O médico vê as dele; a resposta não vaza as colunas auxiliares dos índices
@@ -177,7 +177,7 @@ class ConsultasTest extends TestCase
     {
         $medico = $this->medico();
         $paciente = $this->paciente();
-        $this->consulta($medico, $paciente, ['data' => $this->amanha(2), 'hora' => '08:00']);
+        $this->consulta($medico, $paciente, ['data' => $this->proximoDiaUtil(), 'hora' => '08:00']);
         $this->consulta($medico, $paciente, ['data' => $this->amanha(4), 'hora' => '08:00']);
 
         Sanctum::actingAs($medico);

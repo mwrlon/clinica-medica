@@ -1,3 +1,5 @@
+import axios from 'axios';
+
 /**
  * Sessão (token da API) e formulários de autenticação, compartilhados pelas telas.
  *
@@ -37,44 +39,8 @@ export function lerSessao() {
 }
 
 /**
- * Faz uma requisição JSON à API usando a sessão atual.
- * Um 401 encerra a sessão; erros mantêm status e payload em `response`.
- */
-async function requisitarApi(token, perfil, caminho, opcoes = {}) {
-    const resposta = await fetch(`/api${caminho}`, {
-        ...opcoes,
-        headers: {
-            Accept: 'application/json',
-            ...(opcoes.body ? { 'Content-Type': 'application/json' } : {}),
-            Authorization: `Bearer ${token}`,
-            ...opcoes.headers,
-        },
-    });
-
-    const texto = await resposta.text();
-    let dados = null;
-    if (texto) {
-        try { dados = JSON.parse(texto); }
-        catch { dados = { mensagem: texto }; }
-    }
-
-    if (resposta.status === 401) {
-        limparSessao();
-        window.location.href = LOGIN[perfil];
-    }
-
-    if (!resposta.ok) {
-        const erro = new Error(dados?.mensagem ?? `Erro HTTP ${resposta.status}`);
-        erro.response = { status: resposta.status, data: dados };
-        throw erro;
-    }
-
-    return dados;
-}
-
-/**
  * Protege um painel: exige sessão do perfil esperado (senão vai para o login)
- * e devolve métodos JSON autenticados por Bearer token.
+ * e devolve um cliente axios já autenticado. Um 401 da API encerra a sessão.
  */
 export function iniciarPainel(perfilEsperado) {
     const { token, perfil } = lerSessao();
@@ -84,17 +50,23 @@ export function iniciarPainel(perfilEsperado) {
         return null;
     }
 
-    return {
-        get: (caminho) => requisitarApi(token, perfilEsperado, caminho),
-        post: (caminho, dados) => requisitarApi(token, perfilEsperado, caminho, {
-            method: 'POST',
-            ...(dados === undefined ? {} : { body: JSON.stringify(dados) }),
-        }),
-        put: (caminho, dados) => requisitarApi(token, perfilEsperado, caminho, {
-            method: 'PUT',
-            ...(dados === undefined ? {} : { body: JSON.stringify(dados) }),
-        }),
-    };
+    const api = axios.create({
+        baseURL: '/api',
+        headers: { Accept: 'application/json', Authorization: `Bearer ${token}` },
+    });
+
+    api.interceptors.response.use(
+        (resposta) => resposta,
+        (erro) => {
+            if (erro.response?.status === 401) {
+                limparSessao();
+                window.location.href = LOGIN[perfilEsperado];
+            }
+            return Promise.reject(erro);
+        }
+    );
+
+    return api;
 }
 
 /** Botão "Sair": revoga o token na API, limpa a sessão e volta ao login do perfil. */
@@ -164,17 +136,11 @@ export async function entrar({ form, endpoint, perfil, textoPadrao, textoCarrega
     botao.textContent = textoCarregando;
 
     try {
-        const resposta = await fetch(endpoint, {
-            method: 'POST',
-            headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: form.email.value, senha: form.senha.value }),
-        });
-        const data = await resposta.json();
-        if (!resposta.ok) {
-            const erro = new Error(data?.mensagem ?? `Erro HTTP ${resposta.status}`);
-            erro.response = { status: resposta.status, data };
-            throw erro;
-        }
+        const { data } = await axios.post(
+            endpoint,
+            { email: form.email.value, senha: form.senha.value },
+            { headers: { Accept: 'application/json' } }
+        );
 
         if (!data.access_token) throw new Error('Resposta da API sem access_token.');
 
