@@ -403,3 +403,14 @@ input[type="checkbox"] {
         padding: 28px 20px;
     }
 }
+
+/* Link discreto para a área administrativa, no rodapé */
+.site-footer a {
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.site-footer a:hover {
+    color: var(--blue-deep);
+}

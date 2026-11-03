@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { limparErros, mostrarErro, salvarSessao, PAINEL } from '../lib/sessao.js';
+import { avisar, avisarErro } from '../lib/ui.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('form-cadastro');
@@ -9,13 +10,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const btnSubmit = form.querySelector('button[type="submit"]');
-    const mensagens = document.getElementById('mensagens');
 
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
         limparErros(form);
-        if (mensagens) mensagens.textContent = '';
 
         const txtOriginal = btnSubmit?.textContent;
         if (btnSubmit) {
@@ -41,6 +40,17 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             salvarSessao(response.data.access_token, 'paciente', true);
+
+            const primeiroNome = (response.data.usuario?.nome ?? '').trim().split(/\s+/)[0];
+
+            await avisar({
+                tipo: 'sucesso',
+                titulo: 'Conta criada com sucesso!',
+                mensagem: `${primeiroNome ? `${primeiroNome}, sua` : 'Sua'} conta ProSaúde está pronta. Estamos levando você para a sua área.`,
+                botao: 'Ir para minha área',
+                fecharEm: 3200,
+            });
+
             window.location.href = PAINEL.paciente;
         } catch (error) {
             if (btnSubmit) {
@@ -50,11 +60,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (error.response?.status === 422 && error.response.data?.errors) {
                 const errors = error.response.data.errors;
+                const problemas = [];
+                let primeiroCampo = null;
+
+                // O problema aparece abaixo do campo e, junto com os demais, em um aviso
                 for (const campo in errors) {
-                    mostrarErro(form, campo, errors[campo][0]);
+                    problemas.push(errors[campo][0]);
+
+                    if (form.querySelector(`[name="${campo}"]`)) {
+                        mostrarErro(form, campo, errors[campo][0]);
+                        primeiroCampo ??= campo;
+                    }
                 }
+
+                await avisar({
+                    tipo: 'aviso',
+                    titulo: 'Revise os dados informados',
+                    mensagem: 'Ainda não foi possível criar a sua conta:',
+                    itens: problemas,
+                    botao: 'Corrigir dados',
+                });
+
+                if (primeiroCampo) form.querySelector(`[name="${primeiroCampo}"]`)?.focus();
             } else {
-                mostrarErro(form, 'mensagem-geral', 'Ocorreu um erro inesperado ao tentar cadastrar.');
+                avisarErro(error, {
+                    padrao: 'Ocorreu um erro inesperado ao tentar cadastrar.',
+                    titulo: 'Não foi possível criar a conta',
+                });
             }
         }
     });

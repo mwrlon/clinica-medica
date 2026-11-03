@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ProSaúde - Cadastro</title>
-    @vite(['resources/css/cadastro.css', 'resources/js/scripts/cadastro.js'])
+    @vite(['resources/css/modal.css', 'resources/css/cadastro.css', 'resources/js/scripts/cadastro.js'])
 </head>
 <body>
     <header class="site-header">
@@ -45,7 +45,7 @@
                     <p>Preencha os dados abaixo para começar. Leva menos de um minuto.</p>
                 </div>
 
-                <form id="form-cadastro">
+                <form id="form-cadastro" novalidate>
                     @csrf
 
                     <div class="form-grid">
@@ -110,7 +110,7 @@
 
                     <div class="terms">
                         <input type="checkbox" id="termos" name="termos" required>
-                        <label for="termos">Li e aceito os termos de uso e a política de privacidade</label>
+                        <label for="termos">Li e aceito os <a href="{{ url('/termos') }}" target="_blank" rel="noopener">termos de uso</a> e a <a href="{{ url('/privacidade') }}" target="_blank" rel="noopener">política de privacidade</a></label>
                     </div>
                     @error('termos')<span class="field-error">{{ $message }}</span>@enderror
 

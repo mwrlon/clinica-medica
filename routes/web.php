@@ -49,3 +49,21 @@ Route::get('/paciente', function () {
     return view('paciente');
 })->name('paciente');
 
+
+// Administração (a API fica em /api/admin/*)
+Route::get('/login-admin', function () {
+    return view('loginAdmin');
+})->name('loginAdmin');
+
+Route::get('/admin', function () {
+    return view('admin');
+})->name('admin');
+
+// Páginas institucionais
+Route::get('/termos', function () {
+    return view('termos');
+})->name('termos');
+
+Route::get('/privacidade', function () {
+    return view('privacidade');
+})->name('privacidade');

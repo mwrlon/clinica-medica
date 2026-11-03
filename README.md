@@ -90,7 +90,11 @@ Todas as rotas ficam em `/api` e respondem JSON. Rotas protegidas exigem `Author
 | `GET /api/pacientes?busca=…`                           | médico/admin  | Busca por nome ou CPF (3+ letras, até 10 resultados) para marcar encaixes |
 | `POST /api/atendimentos`                               | médico        | Registra o atendimento (receita, diagnóstico) |
 | `GET /api/exames`                                      | autenticado   | Paciente: os seus · médico: os que pediu · admin: todos |
-| `/api/admin/*`                                         | administrador | CRUD de médicos, especialidades, convênios e salas |
+| `GET /api/convenios`                                   | público       | Convênios (`id`, `nome`) para os formulários |
+| `PUT /api/perfil` · `PUT /api/perfil/senha`            | autenticado   | Edita os dados do próprio perfil / troca a senha (`senha_atual`, `senha`, `confirmar_senha`; os outros aparelhos são desconectados) |
+| `GET /api/admin/resumo`                                | administrador | Números da visão geral (médicos, pacientes, consultas, por especialidade, próximas) |
+| `GET /api/admin/consultas` · `/pacientes`              | administrador | Listas paginadas com filtros (`status`, `data_inicio`, `data_fim`, `medico_id`, `busca`, `por_pagina`) |
+| `/api/admin/*`                                         | administrador | CRUD de médicos, especialidades, convênios e salas. Excluir algo em uso (médico com consultas, especialidade com médicos, convênio com pacientes, sala com consultas) devolve **409** |
 
 ### Horário de atendimento
 
@@ -98,6 +102,20 @@ A grade de horários fica em `config/clinica.php`: segunda a sexta das 07:00 às
 consultas de 30 em 30 minutos (é o que o site informa). O **paciente** só marca dentro dessa grade; o **médico** pode marcar
 *encaixes* fora dela. Horários que já passaram são recusados para todos. A sala é escolhida automaticamente
 (a primeira livre no horário) e uma consulta cancelada libera médico, paciente e sala.
+
+## Avisos, 404 e páginas novas
+
+- **Avisos em janela:** nenhum `alert()` do navegador é usado. `resources/js/lib/ui.js` traz `avisar()` (sucesso, aviso, erro), `confirmar()` e
+  `criarModal()`; o visual fica em `resources/css/modal.css`. Erros de preenchimento aparecem sob o campo; erros da API, de conexão e de sistema
+  aparecem em janela (a sessão expirada também, com volta ao login).
+- **Página 404 personalizada** em `resources/views/errors/404.blade.php` (funciona mesmo sem `npm run build`). Rotas `/api/*` seguem devolvendo JSON.
+  Para criar 403, 419, 429 ou 500 no mesmo estilo, basta copiar esse arquivo para `errors/{código}.blade.php`.
+- **Painel do administrador** (`/login-admin` → `/admin`): *Visão Geral*, *Médicos* (cadastrar, editar, inativar/reativar, excluir),
+  *Pacientes* (busca e paginação), *Consultas* (filtros, paginação e cancelamento), *Cadastros* (especialidades, convênios e salas) e *Minha Conta*.
+  O acesso aparece como link discreto no rodapé dos logins de paciente e médico.
+- **Meu Perfil** nos painéis do paciente e do médico (`#perfil`): editar dados de contato e trocar a senha. CPF e CRM não são editáveis.
+- **Termos de Uso** (`/termos`) e **Política de Privacidade** (`/privacidade`), linkados no cadastro e nos rodapés.
+  Os textos são um modelo: **peça a revisão de um advogado** e preencha o CNPJ/contato reais antes de publicar.
 
 ## Painéis
 
@@ -128,5 +146,5 @@ sobre o arquivo `.env` inexistente (`vendor/bin/phpunit` não tem esse problema)
 - `app/Models` — modelos Eloquent (as tabelas usam `criado_em`, sem `updated_at`)
 - `database/migrations`, `database/seeders` — esquema e dados iniciais/de exemplo
 - `app/Support/AgendaClinica.php` — regras de horário e de sala · `config/clinica.php` — expediente da clínica
-- `resources/views` — páginas Blade · `resources/css` — estilos · `resources/js` — scripts (login, cadastro e painéis)
+- `resources/views` — páginas Blade · `resources/css` — estilos · `resources/js` — scripts (login, cadastro e painéis; `lib/admin/*` = abas do administrador)
 - `lang/pt_BR` — mensagens de validação em português

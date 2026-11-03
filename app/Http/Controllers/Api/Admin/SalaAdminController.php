@@ -8,7 +8,11 @@ use Illuminate\Http\Request;
 
 class SalaAdminController extends Controller
 {
-    public function index() { return response()->json(Sala::all()); }
+    /** Salas com a quantidade de consultas de cada uma. */
+    public function index()
+    {
+        return response()->json(Sala::withCount('consultas')->orderBy('identificacao')->get());
+    }
 
     public function store(Request $request)
     {
@@ -18,5 +22,22 @@ class SalaAdminController extends Controller
         ]);
 
         return response()->json(Sala::create($validated), 201);
+    }
+
+    public function destroy($id)
+    {
+        $sala = Sala::findOrFail($id);
+
+        // A chave estrangeira das consultas é "cascadeOnDelete": excluir uma sala usada
+        // apagaria o histórico de consultas que passaram por ela.
+        if ($sala->consultas()->exists()) {
+            return response()->json([
+                'mensagem' => 'Não é possível excluir: há consultas registradas nesta sala.',
+            ], 409);
+        }
+
+        $sala->delete();
+
+        return response()->json(['mensagem' => 'Sala excluída com sucesso.']);
     }
 }

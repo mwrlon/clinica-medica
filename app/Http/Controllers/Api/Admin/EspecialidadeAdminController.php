@@ -13,6 +13,12 @@ class EspecialidadeAdminController extends Controller
         return response()->json(Especialidade::all());
     }
 
+    /** Painel admin: especialidades com a quantidade de médicos de cada uma. */
+    public function indexAdmin()
+    {
+        return response()->json(Especialidade::withCount('medicos')->orderBy('nome')->get());
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([

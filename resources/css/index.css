@@ -742,3 +742,14 @@ main > section {
         padding-inline: 20px;
     }
 }
+
+/* Links dos termos e da política de privacidade, no rodapé */
+.footer-bottom a {
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.footer-bottom a:hover {
+    color: var(--blue-soft);
+}

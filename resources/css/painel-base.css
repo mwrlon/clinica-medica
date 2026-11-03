@@ -1,4 +1,5 @@
 @import url("https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap");
+@import "./modal.css";
 
 /*
  * Base visual dos painéis do paciente e do médico.
@@ -552,6 +553,52 @@ h4 {
     padding: 10px 14px;
 }
 
+/* ---------- Formulários de perfil ---------- */
+.perfil-grade {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.perfil-grade .card-cabecalho {
+    margin-bottom: 20px;
+}
+
+.perfil-grade .card-cabecalho p {
+    margin-top: 4px;
+    font-size: 0.9rem;
+}
+
+.form-linha .campo-largo {
+    grid-column: 1 / -1;
+}
+
+.form-estreito {
+    max-width: 460px;
+}
+
+.form-acoes {
+    flex-direction: row;
+    justify-content: flex-start;
+    margin-top: 4px;
+}
+
+.campo input.somente-leitura {
+    color: var(--ink-70);
+    background: rgba(14, 14, 14, 0.04);
+    cursor: not-allowed;
+}
+
+.campo-erro {
+    display: block;
+    margin-top: 5px;
+}
+
+.campo input[aria-invalid="true"],
+.campo select[aria-invalid="true"] {
+    border-color: var(--error);
+}
+
 /* ---------- Horários livres (botões de escolha) ---------- */
 .horarios {
     display: grid;
@@ -612,121 +659,106 @@ h4 {
     border-radius: 6px;
 }
 
-/* ---------- Janelas (dialog nativo) ---------- */
-dialog.modal {
-    margin: auto;
-    padding: 0;
-    border: none;
-    border-radius: var(--radius-m);
-    width: min(560px, calc(100vw - 32px));
-    max-height: calc(100vh - 32px);
-    max-height: calc(100dvh - 32px);
-    background: #ffffff;
-    color: var(--ink);
-    box-shadow: 0 24px 60px -20px rgba(14, 14, 14, 0.45);
+/* ---------- Métricas, tabelas e filtros (painéis do médico e do administrador) ---------- */
+.metricas {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 20px;
 }
 
-dialog.modal[open] {
-    display: flex;
-    flex-direction: column;
+.metrica {
+    padding: 20px;
 }
 
-dialog.modal-largo {
-    width: min(760px, calc(100vw - 32px));
-}
-
-dialog.modal::backdrop {
-    background: rgba(14, 14, 14, 0.5);
-    backdrop-filter: blur(2px);
-}
-
-.modal-cabecalho {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 16px;
-    padding: 24px 28px 0;
-}
-
-.modal-cabecalho p {
-    margin-top: 4px;
-    font-size: 0.9rem;
-    color: var(--ink-70);
-}
-
-.modal-fechar {
-    flex-shrink: 0;
-    width: 36px;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.4rem;
-    line-height: 1;
-    color: var(--ink-70);
-    background: transparent;
-    border: 1px solid var(--ink-12);
-    border-radius: 50%;
-    cursor: pointer;
-    transition:
-        border-color 0.2s ease,
-        color 0.2s ease;
-}
-
-.modal-fechar:hover {
-    border-color: var(--blue-deep);
+.metrica .valor {
+    margin: 8px 0 4px;
+    font-family: var(--font-serif);
+    font-size: 2.4rem;
+    font-weight: 500;
+    line-height: 1.1;
     color: var(--blue-deep);
 }
 
-.modal-corpo {
-    padding: 20px 28px;
-    overflow-y: auto;
-    min-height: 0;
+.metrica .detalhe {
+    font-size: 0.85rem;
+    line-height: 1.4;
+    color: var(--ink-45);
 }
 
-.modal-rodape {
+.entrada-data {
+    width: auto;
+    min-width: 170px;
+}
+
+.entrada-busca {
+    width: min(260px, 100%);
+}
+
+.tabela-rolagem {
+    overflow-x: auto;
+}
+
+.tabela {
+    width: 100%;
+    min-width: 660px;
+    border-collapse: collapse;
+}
+
+.tabela th,
+.tabela td {
+    padding: 14px 16px;
+    text-align: left;
+    vertical-align: middle;
+    border-bottom: 1px solid var(--ink-12);
+    font-size: 0.92rem;
+}
+
+.tabela th {
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-45);
+}
+
+.tabela tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.tabela tbody tr:hover td {
+    background: rgba(174, 218, 244, 0.16);
+}
+
+.tabela .hora {
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.tabela .vazio {
+    padding: 24px 16px;
+    text-align: center;
+}
+
+.acoes-linha {
     display: flex;
     flex-wrap: wrap;
-    justify-content: flex-end;
-    gap: 12px;
-    padding: 16px 28px 24px;
-    border-top: 1px solid var(--ink-12);
+    gap: 8px;
 }
 
-/* ---------- Avisos rápidos ---------- */
-.toasts {
-    position: fixed;
-    right: 24px;
-    bottom: 24px;
-    z-index: 3000;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    width: min(380px, calc(100vw - 32px));
-    pointer-events: none;
+@media (max-width: 1100px) {
+    .metricas {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
 }
 
-.toast {
-    pointer-events: auto;
-    padding: 14px 18px;
-    font-size: 0.92rem;
-    line-height: 1.45;
-    color: var(--paper);
-    background: var(--ink);
-    border-left: 4px solid var(--blue-vivid);
-    border-radius: var(--radius-m);
-    box-shadow: 0 16px 36px -16px rgba(14, 14, 14, 0.5);
-    animation: toast-entra 0.25s ease;
-}
+@media (max-width: 520px) {
+    .metricas {
+        grid-template-columns: minmax(0, 1fr);
+    }
 
-.toast-erro {
-    border-left-color: #ff8a80;
-}
-
-@keyframes toast-entra {
-    from {
-        opacity: 0;
-        transform: translateY(8px);
+    .entrada-data,
+    .entrada-busca {
+        width: 100%;
     }
 }
 
@@ -858,27 +890,6 @@ dialog.modal::backdrop {
 
     .form-linha {
         grid-template-columns: minmax(0, 1fr);
-    }
-
-    .modal-cabecalho {
-        padding: 20px 20px 0;
-    }
-
-    .modal-corpo {
-        padding: 18px 20px;
-    }
-
-    .modal-rodape {
-        padding: 14px 20px 20px;
-    }
-
-    .modal-rodape .btn {
-        flex: 1 1 140px;
-    }
-
-    .toasts {
-        right: 16px;
-        bottom: 16px;
     }
 }
 

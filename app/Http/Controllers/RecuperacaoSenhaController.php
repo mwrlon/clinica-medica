@@ -112,9 +112,10 @@ class RecuperacaoSenhaController extends Controller
         $usuario = $linkValido ? $model::where('email', $dados['email'])->first() : null;
 
         if (!$usuario) {
-            return redirect($voltar())->withErrors([
-                'senha' => 'Link inválido ou expirado. Solicite uma nova recuperação de senha.',
-            ]);
+            return redirect($voltar())
+                ->withErrors(['senha' => 'Link inválido ou expirado. Solicite uma nova recuperação de senha.'])
+                // A tela abre um aviso em janela que leva ao pedido de um novo link
+                ->with('link_invalido', 'Este link de recuperação é inválido ou já expirou. Solicite um novo para criar a sua senha.');
         }
 
         $usuario->update(['senha_hash' => Hash::make($dados['senha'])]);

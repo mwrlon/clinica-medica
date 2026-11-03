@@ -22,6 +22,10 @@ class PaginasTest extends TestCase
             'redefinir senha'   => ['/redefinir-senha/um-token?email=a@a.com&tipo=paciente'],
             'painel do médico'  => ['/medico'],
             'painel do paciente'=> ['/paciente'],
+            'login do administrador' => ['/login-admin'],
+            'painel do administrador' => ['/admin'],
+            'termos de uso'     => ['/termos'],
+            'política de privacidade' => ['/privacidade'],
         ];
     }
 
@@ -63,6 +67,7 @@ class PaginasTest extends TestCase
         return [
             'painel do paciente' => ['/paciente'],
             'painel do médico'   => ['/medico'],
+            'painel do administrador' => ['/admin'],
         ];
     }
 
@@ -89,8 +94,84 @@ class PaginasTest extends TestCase
             ->assertSee('id="area-impressao"', false);
     }
 
-    public function test_pagina_inexistente_responde_404(): void
+    public function test_pagina_inexistente_mostra_a_404_personalizada(): void
     {
-        $this->get('/nao-existe')->assertNotFound();
+        $this->get('/nao-existe')
+            ->assertNotFound()
+            ->assertSee('Não encontramos esta página')
+            ->assertSee('Voltar ao início')
+            ->assertSee('href="' . url('/') . '"', false)
+            ->assertSee('<title>Página não encontrada - ProSaúde</title>', false)
+            ->assertDontSee('Not Found');
+    }
+
+    public function test_rota_inexistente_da_api_continua_respondendo_json(): void
+    {
+        $this->get('/api/nao-existe')
+            ->assertNotFound()
+            ->assertHeader('Content-Type', 'application/json')
+            ->assertDontSee('Não encontramos esta página');
+    }
+
+    public function test_cadastro_liga_aos_termos_e_a_politica_de_privacidade(): void
+    {
+        $this->get('/cadastro')
+            ->assertSee('href="' . url('/termos') . '"', false)
+            ->assertSee('href="' . url('/privacidade') . '"', false);
+
+        $this->get('/termos')->assertSee('Termos de uso')->assertSee('Cadastro e conta');
+        $this->get('/privacidade')->assertSee('Política de privacidade')->assertSee('LGPD');
+    }
+
+    public function test_telas_de_login_do_paciente_e_do_medico_levam_ao_acesso_administrativo(): void
+    {
+        foreach (['/login', '/login-medico'] as $url) {
+            $this->get($url)->assertSee('href="' . url('/login-admin') . '"', false);
+        }
+    }
+
+    public function test_paineis_do_paciente_e_do_medico_tem_a_aba_meu_perfil(): void
+    {
+        foreach (['/paciente', '/medico', '/admin'] as $url) {
+            $this->get($url)
+                ->assertSee('<a href="#perfil">', false)
+                ->assertSee('data-campo="perfil"', false);
+        }
+    }
+
+    public function test_painel_do_administrador_tem_as_abas_e_os_botoes(): void
+    {
+        $this->get('/admin')
+            ->assertSee('id="resumo"', false)
+            ->assertSee('id="medicos"', false)
+            ->assertSee('id="pacientes"', false)
+            ->assertSee('id="consultas"', false)
+            ->assertSee('id="cadastros"', false)
+            ->assertSee('id="btn-novo-medico"', false)
+            ->assertSee('id="btn-sair"', false);
+    }
+
+    public function test_nenhum_script_usa_alert_confirm_ou_prompt_do_navegador(): void
+    {
+        // Regressão: os avisos agora são janelas (resources/js/lib/ui.js), nunca o alert() genérico
+        $arquivos = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator(resource_path('js')));
+        $verificados = 0;
+
+        foreach ($arquivos as $arquivo) {
+            if ($arquivo->getExtension() !== 'js') {
+                continue;
+            }
+
+            $verificados++;
+            $codigo = preg_replace('#//[^\n]*|/\*.*?\*/#s', '', file_get_contents($arquivo->getPathname()));
+
+            $this->assertDoesNotMatchRegularExpression(
+                '/(?<![\w.$])(?:window\.)?(alert|confirm|prompt)\s*\(/',
+                $codigo,
+                "{$arquivo->getFilename()} usa alert/confirm/prompt do navegador"
+            );
+        }
+
+        $this->assertGreaterThan(10, $verificados);
     }
 }

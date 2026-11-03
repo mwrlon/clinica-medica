@@ -103,16 +103,24 @@ Limites conhecidos, de propósito:
 - Mensagens de validação em português (`lang/pt_BR`) e `APP_TIMEZONE`/`APP_LOCALE` no `config/app.php`.
 - Typo "Instular" no `docker/Dockerfile`.
 
+## Novidades: avisos em janela, 404 e novas telas
+
+- **Janelas no lugar de `alert()`/avisos soltos:** componente único (`ui.js` + `modal.css`) usado no login, cadastro, recuperação de senha e nos painéis do paciente, médico e administrador. Sucessos fecham sozinhos; erros esperam o usuário; Esc e clique no fundo fecham; leitores de tela recebem `role` e `aria-*`. Erros 5xx não mostram mais "Server Error" cru e a falta de internet tem aviso próprio. Sessão expirada (401) avisa e leva ao login.
+- **Página 404 personalizada** (somente para páginas; a API continua em JSON).
+- **Abas que faltavam:** painel do **Administrador** (login próprio, visão geral, médicos, pacientes, consultas, cadastros e conta), **Meu Perfil** para paciente e médico, **Termos de Uso** e **Política de Privacidade**. Novas rotas de API em `routes/api.php` (resumo, listas paginadas, `PUT /perfil`, `PUT /perfil/senha`, `GET /convenios`, `DELETE` de salas e convênios).
+- **Proteção contra exclusões em cascata:** excluir médico com consultas, especialidade com médicos, convênio com pacientes ou sala com consultas agora devolve 409 (antes apagava/zerava tudo em silêncio). Para médicos use *Inativar*.
+- Link de recuperação de senha inválido agora abre um aviso que leva ao pedido de um novo link.
+
 ## Como validar
 
 ```bash
-php artisan test        # 122 testes (SQLite em memória; também passam no MySQL)
+php artisan test        # 183 testes (SQLite em memória; também passam no MySQL)
 ```
 
 Feito antes da entrega, todos com sucesso: todas as migrations, os seeders e a suíte no **MySQL 8.0**; uma bateria de 59 verificações
-da API; e dois testes de navegador (Chromium): um cobrindo cadastro, logins, logout, painéis com dados reais, gráficos, recuperação de senha
+da API; e três testes de navegador (Chromium): um cobrindo cadastro, logins, logout, painéis com dados reais, gráficos, recuperação de senha
 e proteção de rotas, e outro com todos os botões dos painéis (agendar, reagendar, cancelar, encaixe, atendimento, prontuário, atestado),
-em desktop e celular, sem erros de JavaScript.
+em desktop e celular, sem erros de JavaScript. O terceiro cobre os avisos em janela, a 404, o painel do administrador (todas as abas), o Meu Perfil, termos/privacidade e a ausência de rolagem horizontal de 320 a 1920 px.
 
 ## Mensagem de commit sugerida
 
@@ -124,5 +132,7 @@ Corrige login, cadastro, painéis e API da clínica
 - Liga os painéis do médico e do paciente aos dados reais e refaz o visual deles no padrão da página inicial
 - Faz funcionar os botões dos painéis: agendar, reagendar, cancelar, encaixe, atendimento, prontuário e atestado
 - Adiciona horários livres, reagendamento e busca de pacientes na API, com grade de atendimento em config/clinica.php
-- Adiciona recuperação de senha, seeders de demonstração, README e 122 testes
+- Substitui os alerts por janelas (modais) e adiciona página 404 personalizada
+- Adiciona painel do administrador, Meu Perfil (paciente/médico), termos e privacidade, com API e testes
+- Adiciona recuperação de senha, seeders de demonstração, README e 183 testes
 ```

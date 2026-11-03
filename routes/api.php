@@ -11,6 +11,8 @@ use App\Http\Controllers\Api\Admin\ConvenioAdminController;
 use App\Http\Controllers\Api\ExameController;
 use App\Http\Controllers\Api\AgendaController;
 use App\Http\Controllers\Api\PacienteController;
+use App\Http\Controllers\Api\PerfilController;
+use App\Http\Controllers\Api\Admin\PainelAdminController;
 
 /*
 |--------------------------------------------------------------------------
@@ -26,6 +28,7 @@ Route::post('/login/admin', [AuthController::class, 'loginAdmin']);
 
 // Dados públicos para exibição em formulários de agendamento/home
 Route::get('/especialidades', [EspecialidadeAdminController::class, 'index']);
+Route::get('/convenios', [ConvenioAdminController::class, 'indexPublico']);
 Route::get('/medicos', [MedicoAdminController::class, 'indexPublico']);
 
 
@@ -36,6 +39,11 @@ Route::get('/medicos', [MedicoAdminController::class, 'indexPublico']);
 */
 Route::middleware(['auth:sanctum', 'perfil:admin'])->prefix('admin')->group(function () {
 
+    // Visão geral, consultas (com filtros) e pacientes
+    Route::get('/resumo', [PainelAdminController::class, 'resumo']);
+    Route::get('/consultas', [PainelAdminController::class, 'consultas']);
+    Route::get('/pacientes', [PainelAdminController::class, 'pacientes']);
+
     // Gestão de Médicos (CRUD)
     Route::get('/medicos', [MedicoAdminController::class, 'index']);
     Route::post('/medicos', [MedicoAdminController::class, 'store']);
@@ -44,16 +52,19 @@ Route::middleware(['auth:sanctum', 'perfil:admin'])->prefix('admin')->group(func
     Route::delete('/medicos/{id}', [MedicoAdminController::class, 'destroy']);
 
     // Gestão de Especialidades
+    Route::get('/especialidades', [EspecialidadeAdminController::class, 'indexAdmin']);
     Route::post('/especialidades', [EspecialidadeAdminController::class, 'store']);
     Route::delete('/especialidades/{id}', [EspecialidadeAdminController::class, 'destroy']);
 
     // Gestão de Salas
     Route::get('/salas', [SalaAdminController::class, 'index']);
     Route::post('/salas', [SalaAdminController::class, 'store']);
+    Route::delete('/salas/{id}', [SalaAdminController::class, 'destroy']);
 
     // Gestão de Convênios
     Route::get('/convenios', [ConvenioAdminController::class, 'index']);
     Route::post('/convenios', [ConvenioAdminController::class, 'store']);
+    Route::delete('/convenios/{id}', [ConvenioAdminController::class, 'destroy']);
 });
 
 
@@ -66,6 +77,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/perfil', [AuthController::class, 'perfil']);
+    Route::put('/perfil', [PerfilController::class, 'atualizar']);
+    Route::put('/perfil/senha', [PerfilController::class, 'alterarSenha']);
 
     // Consultas
     Route::get('/consultas', [ConsultaController::class, 'index']);

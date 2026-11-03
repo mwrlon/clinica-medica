@@ -21,6 +21,7 @@
                     <li><a href="#agenda">Agenda do Dia</a></li>
                     <li><a href="#pacientes">Meus Pacientes</a></li>
                     <li><a href="#relatorios">Relatórios</a></li>
+                    <li><a href="#perfil">Meu Perfil</a></li>
                 </ul>
             </nav>
 
@@ -141,6 +142,15 @@
                         <canvas id="chartPacientes"></canvas>
                     </div>
                 </div>
+            </section>
+
+            <!-- MEU PERFIL: dados pessoais e senha -->
+            <section id="perfil">
+                <div class="card-cabecalho">
+                    <h2>Meu Perfil</h2>
+                </div>
+                <!-- Os formulários são montados por resources/js/lib/perfil.js -->
+                <div class="perfil-grade" data-campo="perfil"></div>
             </section>
         </div>
     </main>

@@ -3,10 +3,11 @@ import {
     el, campo, definirTexto, dois, hojeISO, horaAgora, dataBR, dataLonga, horaCurta, idade,
     ehProxima, slugDoNome, iniciais, diaDaSemana, ativarMenuPorSecao, MESES_CURTOS,
 } from '../lib/painel.js';
-import { criarModal, toast, mensagemDeErro } from '../lib/ui.js';
+import { criarModal, avisar, avisarErro, mensagemDeErro } from '../lib/ui.js';
 import { criarSeletorHorarios } from '../lib/horarios.js';
+import { montarPerfil } from '../lib/perfil.js';
 
-const ENDERECO_CLINICA = 'Rua das Acadias, 482 — Erechim, RS';
+const ENDERECO_CLINICA = 'Rua das Acácias, 482 — Erechim, RS';
 
 const STATUS = { agendada: 'Agendado', realizada: 'Concluído', cancelada: 'Cancelado' };
 const STATUS_TAG = { agendada: 'tag', realizada: 'tag tag-ok', cancelada: 'tag tag-neutra' };
@@ -55,6 +56,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         estado.medico = rPerfil.data.usuario;
         preencherPerfil(estado.medico);
         renderResumo();
+
+        montarPerfil({
+            api: estado.api,
+            perfil: 'medico',
+            usuario: estado.medico,
+            aoAtualizar: (atualizado) => {
+                estado.medico = atualizado;
+                preencherPerfil(atualizado);
+                renderResumo();
+            },
+        });
     }
 });
 
@@ -464,25 +476,6 @@ function abrirProntuario(pacienteId) {
 /* Atendimento: diagnóstico, receita e exames                          */
 /* ------------------------------------------------------------------ */
 
-/** Janela de aviso simples, com um botão opcional de ação */
-function avisoEmJanela({ titulo, texto, acao = null }) {
-    const modal = criarModal({ titulo });
-    modal.corpo.append(el('p', { texto }));
-
-    const fechar = el('button', { type: 'button', class: 'btn btn-outline', texto: 'Fechar' });
-    fechar.addEventListener('click', () => modal.fechar());
-    modal.rodape.append(fechar);
-
-    if (acao) {
-        const botao = el('button', { type: 'button', class: 'btn btn-primary', texto: acao.texto });
-        botao.addEventListener('click', () => {
-            modal.fechar();
-            acao.aoClicar();
-        });
-        modal.rodape.append(botao);
-    }
-}
-
 /**
  * Registra o atendimento de uma consulta (POST /api/atendimentos): diagnóstico, receita,
  * exames solicitados e observações. Sem "consulta", o médico escolhe entre as pendentes.
@@ -492,9 +485,10 @@ function abrirAtendimento({ consulta = null, foco = 'diagnostico' } = {}) {
     const pendentes = estado.consultas.filter(aguardaAtendimento);
 
     if (!consulta && pendentes.length === 0) {
-        avisoEmJanela({
+        avisar({
+            tipo: 'info',
             titulo: 'Nenhuma consulta para atender',
-            texto: 'Receitas e exames são registrados durante o atendimento de uma consulta, e você não tem consultas pendentes de hoje. '
+            mensagem: 'Receitas e exames são registrados durante o atendimento de uma consulta, e você não tem consultas pendentes de hoje. '
                 + 'Marque um encaixe para atender um paciente agora ou espere o dia da consulta agendada.',
             acao: { texto: 'Nova consulta encaixe', aoClicar: () => abrirEncaixe() },
         });
@@ -634,15 +628,22 @@ function abrirAtendimento({ consulta = null, foco = 'diagnostico' } = {}) {
             });
 
             modal.fechar();
-            toast(exames.length
-                ? `Atendimento registrado e ${exames.length} ${exames.length === 1 ? 'exame solicitado' : 'exames solicitados'}.`
-                : 'Atendimento registrado.');
+            avisar({
+                tipo: 'sucesso',
+                titulo: 'Atendimento registrado!',
+                mensagem: exames.length
+                    ? `A consulta foi concluída e ${exames.length} ${exames.length === 1 ? 'exame foi solicitado' : 'exames foram solicitados'}.`
+                    : 'A consulta foi concluída.',
+                fecharEm: 4500,
+            });
             await carregarDados();
         } catch (e) {
-            erro.textContent = mensagemDeErro(e, 'Não foi possível registrar o atendimento. Tente novamente.');
-            erro.hidden = false;
             salvar.disabled = false;
             salvar.textContent = 'Registrar atendimento';
+            avisarErro(e, {
+                titulo: 'Não foi possível registrar',
+                padrao: 'Não foi possível registrar o atendimento. Tente novamente.',
+            });
         }
     });
 
@@ -661,7 +662,11 @@ function abrirAtendimento({ consulta = null, foco = 'diagnostico' } = {}) {
 
 function abrirEncaixe() {
     if (!estado.medico) {
-        toast('Não foi possível identificar o seu cadastro. Recarregue a página e tente de novo.', 'erro');
+        avisar({
+            tipo: 'erro',
+            titulo: 'Cadastro não identificado',
+            mensagem: 'Não foi possível identificar o seu cadastro. Recarregue a página e tente de novo.',
+        });
         return;
     }
 
@@ -682,8 +687,6 @@ function abrirEncaixe() {
     escolhido.hidden = true;
 
     const motivo = el('textarea', { id: 'en-motivo', maxlength: '500', placeholder: 'Ex.: retorno, dor persistente…' });
-    const erro = el('p', { class: 'erro-form', role: 'alert' });
-    erro.hidden = true;
 
     const marcar = el('button', { type: 'submit', form: 'form-encaixe', class: 'btn btn-primary', texto: 'Marcar encaixe' });
     marcar.disabled = true;
@@ -757,8 +760,7 @@ function abrirEncaixe() {
             escolhido
         ),
         seletor.elemento,
-        el('div', { class: 'campo' }, el('label', { for: 'en-motivo', texto: 'Motivo (opcional)' }), motivo),
-        erro
+        el('div', { class: 'campo' }, el('label', { for: 'en-motivo', texto: 'Motivo (opcional)' }), motivo)
     );
 
     formulario.addEventListener('submit', async (evento) => {
@@ -767,7 +769,6 @@ function abrirEncaixe() {
         const { data, hora } = seletor.valor();
         if (!pacienteId || !data || !hora) return;
 
-        erro.hidden = true;
         marcar.disabled = true;
         marcar.textContent = 'Marcando…';
 
@@ -780,17 +781,24 @@ function abrirEncaixe() {
             });
 
             modal.fechar();
-            toast(`Encaixe marcado: ${pacienteNome} em ${dataBR(data)} às ${hora}.`);
+            avisar({
+                tipo: 'sucesso',
+                titulo: 'Encaixe marcado!',
+                mensagem: `${pacienteNome} · ${dataBR(data)} às ${hora}.`,
+                fecharEm: 4500,
+            });
 
             // Mostra na agenda o dia do encaixe
             const entrada = entradaDataAgenda();
             if (entrada) entrada.value = data;
             await carregarDados();
         } catch (e) {
-            erro.textContent = mensagemDeErro(e, 'Não foi possível marcar o encaixe. Tente novamente.');
-            erro.hidden = false;
             marcar.textContent = 'Marcar encaixe';
             seletor.definirData(data); // o horário pode ter sido ocupado: recarrega os livres
+            avisarErro(e, {
+                titulo: 'Não foi possível marcar o encaixe',
+                padrao: 'Não foi possível marcar o encaixe. Tente novamente.',
+            });
         }
     });
 
@@ -846,16 +854,21 @@ function imprimirDocumento({ titulo, texto }) {
 
 function abrirDocumento() {
     if (!estado.medico) {
-        toast('Não foi possível identificar o seu cadastro. Recarregue a página e tente de novo.', 'erro');
+        avisar({
+            tipo: 'erro',
+            titulo: 'Cadastro não identificado',
+            mensagem: 'Não foi possível identificar o seu cadastro. Recarregue a página e tente de novo.',
+        });
         return;
     }
 
     const pacientes = pacientesDoMedico().map((item) => item.paciente);
 
     if (pacientes.length === 0) {
-        avisoEmJanela({
+        avisar({
+            tipo: 'info',
             titulo: 'Nenhum paciente ainda',
-            texto: 'Atestados e laudos são emitidos para pacientes da sua agenda. Assim que alguém marcar consulta com você, ele aparece aqui.',
+            mensagem: 'Atestados e laudos são emitidos para pacientes da sua agenda. Assim que alguém marcar consulta com você, ele aparece aqui.',
         });
         return;
     }

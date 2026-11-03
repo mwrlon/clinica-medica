@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ProSaúde - Portal Médico</title>
-    @vite(['resources/css/loginMedico.css', 'resources/js/scripts/loginMedico.js'])
+    @vite(['resources/css/modal.css', 'resources/css/loginMedico.css', 'resources/js/scripts/loginMedico.js'])
 </head>
 <body>
     <header class="site-header">
@@ -79,7 +79,7 @@
     </main>
 
     <footer class="site-footer">
-        <p>© {{ date('Y') }} ProSaúde. Todos os direitos reservados.</p>
+        <p>© {{ date('Y') }} ProSaúde. Todos os direitos reservados. · <a href="{{ url('/login-admin') }}">Acesso administrativo</a></p>
     </footer>
 
 </body>

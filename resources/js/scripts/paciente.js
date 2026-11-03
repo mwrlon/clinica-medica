@@ -2,10 +2,11 @@ import { iniciarPainel, ligarLogout } from '../lib/sessao.js';
 import {
     el, campo, definirTexto, dataBR, dataHoraBR, dataLonga, horaCurta, ehProxima, ativarMenuPorSecao,
 } from '../lib/painel.js';
-import { criarModal, confirmar, toast, mensagemDeErro } from '../lib/ui.js';
+import { criarModal, confirmar, avisar, avisarErro } from '../lib/ui.js';
 import { criarSeletorHorarios } from '../lib/horarios.js';
+import { montarPerfil } from '../lib/perfil.js';
 
-const ENDERECO_CLINICA = 'ProSaúde — Rua das Acadias, 482 (Erechim, RS)';
+const ENDERECO_CLINICA = 'ProSaúde — Rua das Acácias, 482 (Erechim, RS)';
 
 document.addEventListener('DOMContentLoaded', async () => {
     // Proteção de rota via front-end: exige login de paciente
@@ -22,7 +23,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         carregarDados(api),
     ]);
 
-    if (rPerfil) preencherPerfil(rPerfil.data.usuario);
+    if (rPerfil) {
+        preencherPerfil(rPerfil.data.usuario);
+        montarPerfil({ api, perfil: 'paciente', usuario: rPerfil.data.usuario, aoAtualizar: preencherPerfil });
+    }
 });
 
 /** Busca consultas e exames e redesenha tudo (usado ao abrir a página e depois de cada ação). */
@@ -132,9 +136,17 @@ async function cancelarConsulta(api, consulta, botao) {
     botao.disabled = true;
     try {
         await api.put(`/consultas/${consulta.id}/cancelar`);
-        toast('Consulta cancelada.');
+        avisar({
+            tipo: 'sucesso',
+            titulo: 'Consulta cancelada',
+            mensagem: `Sua consulta com ${medico} em ${dataBR(consulta.data)} às ${horaCurta(consulta.hora)} foi cancelada. O horário já está livre para outros pacientes.`,
+            fecharEm: 4500,
+        });
     } catch (erro) {
-        toast(mensagemDeErro(erro, 'Não foi possível cancelar a consulta. Tente novamente.'), 'erro');
+        await avisarErro(erro, {
+            titulo: 'Não foi possível cancelar',
+            padrao: 'Não foi possível cancelar a consulta. Tente novamente.',
+        });
     }
 
     // Redesenha nos dois casos: o estado da consulta pode ter mudado
@@ -151,9 +163,6 @@ async function abrirAgendamento(api) {
         subtitulo: 'Escolha a especialidade, o médico e um horário livre.',
     });
 
-    const botaoFechar = el('button', { type: 'button', class: 'btn btn-outline', texto: 'Fechar' });
-    botaoFechar.addEventListener('click', () => modal.fechar());
-
     modal.corpo.append(el('p', { class: 'vazio', texto: 'Carregando médicos…' }));
 
     let especialidades;
@@ -163,8 +172,11 @@ async function abrirAgendamento(api) {
         especialidades = rEspecialidades.data;
         medicos = rMedicos.data;
     } catch (erro) {
-        modal.corpo.replaceChildren(el('p', { class: 'erro-form', texto: mensagemDeErro(erro, 'Não foi possível carregar os médicos. Tente novamente.') }));
-        modal.rodape.append(botaoFechar);
+        modal.fechar();
+        avisarErro(erro, {
+            titulo: 'Não foi possível abrir o agendamento',
+            padrao: 'Não foi possível carregar os médicos. Tente novamente.',
+        });
         return;
     }
 
@@ -178,9 +190,6 @@ async function abrirAgendamento(api) {
         maxlength: '500',
         placeholder: 'Ex.: dor de cabeça frequente, retorno de exame…',
     });
-    const erro = el('p', { class: 'erro-form', role: 'alert' });
-    erro.hidden = true;
-
     const confirmarAgendamento = el('button', { type: 'submit', form: 'form-agendar', class: 'btn btn-primary', texto: 'Agendar consulta' });
     confirmarAgendamento.disabled = true;
 
@@ -217,8 +226,7 @@ async function abrirAgendamento(api) {
         el('div', { class: 'campo' },
             el('label', { for: 'ag-motivo', texto: 'Motivo da consulta (opcional)' }),
             motivo
-        ),
-        erro
+        )
     );
 
     formulario.addEventListener('submit', async (evento) => {
@@ -227,7 +235,6 @@ async function abrirAgendamento(api) {
         const { data, hora } = seletor.valor();
         if (!selectMedico.value || !data || !hora) return;
 
-        erro.hidden = true;
         confirmarAgendamento.disabled = true;
         confirmarAgendamento.textContent = 'Agendando…';
 
@@ -239,15 +246,24 @@ async function abrirAgendamento(api) {
                 observacoes: motivo.value.trim() || null,
             });
 
+            const medico = medicos.find((m) => String(m.id) === selectMedico.value);
+
             modal.fechar();
-            toast(`Consulta agendada para ${dataBR(data)} às ${hora}.`);
+            avisar({
+                tipo: 'sucesso',
+                titulo: 'Consulta agendada!',
+                mensagem: `${medico?.nome ?? 'Sua consulta'} · ${dataBR(data)} às ${hora}. Você pode reagendar ou cancelar pela sua área.`,
+                fecharEm: 4500,
+            });
             await carregarDados(api);
         } catch (e) {
-            erro.textContent = mensagemDeErro(e, 'Não foi possível agendar a consulta. Tente novamente.');
-            erro.hidden = false;
             confirmarAgendamento.textContent = 'Agendar consulta';
             // O horário pode ter sido ocupado por outra pessoa: recarrega os horários livres do dia
             seletor.definirData(data);
+            avisarErro(e, {
+                titulo: 'Não foi possível agendar',
+                padrao: 'Não foi possível agendar a consulta. Tente novamente.',
+            });
         }
     });
 
@@ -275,9 +291,6 @@ function abrirReagendamento(api, consulta) {
         subtitulo: `${medico} · atualmente em ${dataBR(dataAtual)} às ${horaAtual}`,
     });
 
-    const erro = el('p', { class: 'erro-form', role: 'alert' });
-    erro.hidden = true;
-
     const confirmarNovoHorario = el('button', { type: 'submit', form: 'form-reagendar', class: 'btn btn-primary', texto: 'Confirmar novo horário' });
     confirmarNovoHorario.disabled = true;
 
@@ -289,7 +302,7 @@ function abrirReagendamento(api, consulta) {
         confirmarNovoHorario.disabled = !(data && hora) || igualAoAtual;
     }
 
-    const formulario = el('form', { id: 'form-reagendar', class: 'form-grid', novalidate: '' }, seletor.elemento, erro);
+    const formulario = el('form', { id: 'form-reagendar', class: 'form-grid', novalidate: '' }, seletor.elemento);
 
     formulario.addEventListener('submit', async (evento) => {
         evento.preventDefault();
@@ -297,7 +310,6 @@ function abrirReagendamento(api, consulta) {
         const { data, hora } = seletor.valor();
         if (!data || !hora) return;
 
-        erro.hidden = true;
         confirmarNovoHorario.disabled = true;
         confirmarNovoHorario.textContent = 'Reagendando…';
 
@@ -305,13 +317,20 @@ function abrirReagendamento(api, consulta) {
             await api.put(`/consultas/${consulta.id}/reagendar`, { data, hora });
 
             modal.fechar();
-            toast(`Consulta reagendada para ${dataBR(data)} às ${hora}.`);
+            avisar({
+                tipo: 'sucesso',
+                titulo: 'Consulta reagendada!',
+                mensagem: `${medico} · agora em ${dataBR(data)} às ${hora}.`,
+                fecharEm: 4500,
+            });
             await carregarDados(api);
         } catch (e) {
-            erro.textContent = mensagemDeErro(e, 'Não foi possível reagendar a consulta. Tente novamente.');
-            erro.hidden = false;
             confirmarNovoHorario.textContent = 'Confirmar novo horário';
             seletor.definirData(data);
+            avisarErro(e, {
+                titulo: 'Não foi possível reagendar',
+                padrao: 'Não foi possível reagendar a consulta. Tente novamente.',
+            });
         }
     });
 

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ProSaúde - Redefinir senha</title>
-    @vite(['resources/css/esqueciSenha.css'])
+    @vite(['resources/css/modal.css', 'resources/css/esqueciSenha.css', 'resources/js/scripts/recuperacao.js'])
 </head>
 <body>
     <header class="site-header">
@@ -32,10 +32,25 @@
             </div>
 
             @if (session('status'))
-                <div class="alert alert-success" role="status">
-                    {{ session('status') }}
-                </div>
+                {{-- O aviso em janela é aberto por recuperacao.js e leva ao login; sem JavaScript, o texto aparece aqui --}}
+                <div id="aviso-servidor" hidden
+                     data-tipo="sucesso"
+                     data-titulo="Senha redefinida!"
+                     data-mensagem="{{ session('status') }}"
+                     data-botao="Ir para o login"
+                     data-destino="{{ ($tipo ?? null) === 'medico' ? url('/login-medico') : url('/login') }}"></div>
+                <noscript>
+                    <div class="alert alert-success" role="status">{{ session('status') }}</div>
+                </noscript>
             @else
+                @if (session('link_invalido'))
+                    <div id="aviso-servidor" hidden
+                         data-tipo="aviso"
+                         data-titulo="Link inválido ou expirado"
+                         data-mensagem="{{ session('link_invalido') }}"
+                         data-botao="Solicitar novo link"
+                         data-destino="{{ url('/esqueci-senha') }}"></div>
+                @endif
                 <form method="POST" action="{{ url('/redefinir-senha') }}" novalidate>
                     @csrf
                     <input type="hidden" name="token" value="{{ $token }}">

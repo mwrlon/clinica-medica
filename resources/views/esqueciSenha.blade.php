@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ProSaúde - Recuperar senha</title>
-    @vite(['resources/css/esqueciSenha.css'])
+    @vite(['resources/css/modal.css', 'resources/css/esqueciSenha.css', 'resources/js/scripts/recuperacao.js'])
 </head>
 <body>
     <header class="site-header">
@@ -32,9 +32,15 @@
             </div>
 
             @if (session('status'))
-                <div class="alert alert-success" role="status">
-                    {{ session('status') }}
-                </div>
+                {{-- O aviso em janela é aberto por recuperacao.js; sem JavaScript, o texto aparece aqui --}}
+                <div id="aviso-servidor" hidden
+                     data-tipo="sucesso"
+                     data-titulo="Confira o seu e-mail"
+                     data-mensagem="{{ session('status') }}"
+                     data-botao="Entendi"></div>
+                <noscript>
+                    <div class="alert alert-success" role="status">{{ session('status') }}</div>
+                </noscript>
             @endif
 
             <form method="POST" action="{{ url('/esqueci-senha') }}" novalidate>

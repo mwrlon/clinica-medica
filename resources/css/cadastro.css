@@ -441,3 +441,14 @@ input:user-invalid {
 .field select:invalid {
     color: #6b7280;
 }
+/* Links dos termos e da política de privacidade */
+.terms label a {
+    color: var(--blue-deep);
+    font-weight: 500;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.terms label a:hover {
+    color: var(--blue-darker);
+}

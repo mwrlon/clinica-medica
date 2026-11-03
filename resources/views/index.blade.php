@@ -341,7 +341,11 @@
             </div>
 
             <div class="footer-bottom">
-                <p>© 2026 ProSaúde. Todos os direitos reservados.</p>
+                <p>
+                    © 2026 ProSaúde. Todos os direitos reservados.
+                    · <a href="{{ url('/termos') }}">Termos de uso</a>
+                    · <a href="{{ url('/privacidade') }}">Política de privacidade</a>
+                </p>
                 <p>CNPJ 00.000.000/0001-00</p>
             </div>
         </div>

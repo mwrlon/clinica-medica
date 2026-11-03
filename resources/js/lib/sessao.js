@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { avisar, mensagemDeErro, tituloDoErro } from './ui.js';
 
 /**
  * Sessão (token da API) e formulários de autenticação, compartilhados pelas telas.
@@ -7,8 +8,8 @@ import axios from 'axios';
  * sessionStorage caso contrário (some ao fechar a aba).
  */
 
-export const LOGIN = { paciente: '/login', medico: '/login-medico' };
-export const PAINEL = { paciente: '/paciente', medico: '/medico' };
+export const LOGIN = { paciente: '/login', medico: '/login-medico', admin: '/login-admin' };
+export const PAINEL = { paciente: '/paciente', medico: '/medico', admin: '/admin' };
 
 export function limparSessao() {
     for (const tipo of ['localStorage', 'sessionStorage']) {
@@ -40,7 +41,8 @@ export function lerSessao() {
 
 /**
  * Protege um painel: exige sessão do perfil esperado (senão vai para o login)
- * e devolve um cliente axios já autenticado. Um 401 da API encerra a sessão.
+ * e devolve um cliente axios já autenticado. Um 401 da API encerra a sessão:
+ * um aviso explica o que houve e, ao fechar, o usuário vai para o login.
  */
 export function iniciarPainel(perfilEsperado) {
     const { token, perfil } = lerSessao();
@@ -55,14 +57,30 @@ export function iniciarPainel(perfilEsperado) {
         headers: { Accept: 'application/json', Authorization: `Bearer ${token}` },
     });
 
+    let sessaoExpirada = false;
+
     api.interceptors.response.use(
         (resposta) => resposta,
         (erro) => {
-            if (erro.response?.status === 401) {
-                limparSessao();
-                window.location.href = LOGIN[perfilEsperado];
+            if (erro.response?.status !== 401) return Promise.reject(erro);
+
+            limparSessao();
+
+            if (!sessaoExpirada) {
+                sessaoExpirada = true;
+                avisar({
+                    tipo: 'aviso',
+                    titulo: 'Sua sessão expirou',
+                    mensagem: 'Por segurança, entre novamente para continuar.',
+                    botao: 'Entrar novamente',
+                }).then(() => {
+                    window.location.href = LOGIN[perfilEsperado];
+                });
             }
-            return Promise.reject(erro);
+
+            // A chamada que falhou fica sem resposta: a página vai para o login e os avisos de erro
+            // de cada tela não devem aparecer por cima do aviso de sessão expirada.
+            return new Promise(() => {});
         }
     );
 
@@ -101,9 +119,8 @@ export function mostrarErro(form, campo, texto) {
     const alvo = input?.closest('.field') || input?.closest('.terms');
 
     if (!alvo) {
-        const mensagens = document.getElementById('mensagens');
-        if (mensagens) mensagens.textContent = texto;
-        else alert(texto);
+        // Erro que não pertence a nenhum campo: vai para um aviso em janela
+        avisar({ tipo: 'erro', titulo: 'Não foi possível concluir', mensagem: texto });
         return;
     }
 
@@ -124,12 +141,40 @@ export function mostrarErro(form, campo, texto) {
     span.textContent = texto;
 }
 
+/** Valida e-mail e senha no navegador antes de chamar a API; mostra o problema abaixo do campo. */
+function validarLogin(form) {
+    const email = form.email.value.trim();
+    let primeiroInvalido = null;
+
+    if (!email) {
+        mostrarErro(form, 'email', 'Informe seu e-mail.');
+        primeiroInvalido = form.email;
+    } else if (!/^\S+@\S+\.\S+$/.test(email)) {
+        mostrarErro(form, 'email', 'Informe um e-mail válido.');
+        primeiroInvalido = form.email;
+    }
+
+    if (!form.senha.value) {
+        mostrarErro(form, 'senha', 'Informe sua senha.');
+        primeiroInvalido ??= form.senha;
+    }
+
+    primeiroInvalido?.focus();
+
+    return primeiroInvalido === null;
+}
+
 /**
  * Envia o login e, em caso de sucesso, guarda o token e abre o painel.
- * Erros: 422 = campo inválido/credenciais; 403 = acesso negado (ex.: médico inativo).
+ *
+ * Campo vazio ou e-mail mal escrito aparece abaixo do campo; o que a API recusa
+ * (senha errada, cadastro inativo, falta de conexão) aparece em um aviso em janela.
+ * Erros da API: 422 = credenciais inválidas; 403 = acesso negado (ex.: médico inativo).
  */
 export async function entrar({ form, endpoint, perfil, textoPadrao, textoCarregando }) {
     limparErros(form);
+
+    if (!validarLogin(form)) return;
 
     const botao = form.querySelector('button[type="submit"]');
     botao.disabled = true;
@@ -138,7 +183,7 @@ export async function entrar({ form, endpoint, perfil, textoPadrao, textoCarrega
     try {
         const { data } = await axios.post(
             endpoint,
-            { email: form.email.value, senha: form.senha.value },
+            { email: form.email.value.trim(), senha: form.senha.value },
             { headers: { Accept: 'application/json' } }
         );
 
@@ -154,13 +199,27 @@ export async function entrar({ form, endpoint, perfil, textoPadrao, textoCarrega
         const dados = erro.response?.data;
 
         if (status === 422 && dados?.errors) {
-            for (const [campo, mensagens] of Object.entries(dados.errors)) {
-                mostrarErro(form, campo, mensagens[0]);
-            }
+            // Depois da checagem acima, o único 422 possível é "credenciais inválidas"
+            await avisar({
+                tipo: 'aviso',
+                titulo: 'Não foi possível entrar',
+                mensagem: Object.values(dados.errors)[0]?.[0] ?? 'E-mail ou senha incorretos.',
+                botao: 'Tentar novamente',
+            });
+            form.senha.focus();
+            form.senha.select();
         } else if (status === 403 || status === 412) {
-            mostrarErro(form, 'email', dados?.mensagem ?? 'Acesso negado.');
+            await avisar({
+                tipo: 'aviso',
+                titulo: 'Acesso negado',
+                mensagem: dados?.mensagem ?? 'Você não tem acesso a esta área.',
+            });
         } else {
-            mostrarErro(form, 'senha', 'Não foi possível conectar ao servidor. Tente novamente em instantes.');
+            await avisar({
+                tipo: 'erro',
+                titulo: tituloDoErro(erro, 'Não foi possível entrar'),
+                mensagem: mensagemDeErro(erro, 'Não foi possível entrar agora. Tente novamente em instantes.'),
+            });
         }
     }
 }

@@ -1,0 +1,395 @@
+/*
+ * Janelas (<dialog> nativo) e avisos do site, compartilhados por todas as telas.
+ *
+ * - dialog.modal ............ janela com cabeçalho, corpo e rodapé (formulários, detalhes)
+ * - dialog.modal-aviso ...... aviso curto e centralizado: sucesso, erro, aviso, informação e confirmação
+ *
+ * As cores vêm dos mesmos tokens das páginas (--blue-deep, --ink...), com valores de reserva para
+ * as telas que não os definem. Os botões são redefinidos aqui dentro para ficarem iguais em qualquer tela.
+ */
+
+dialog.modal {
+    --m-azul: var(--blue-deep, #246dbf);
+    --m-azul-escuro: var(--blue-darker, #1c5aa0);
+    --m-azul-vivo: var(--blue-vivid, #5facf4);
+    --m-azul-claro: var(--blue-soft, #aedaf4);
+    --m-papel: var(--paper, #efffff);
+    --m-ink: var(--ink, #0e0e0e);
+    --m-ink-70: var(--ink-70, rgba(14, 14, 14, 0.7));
+    --m-ink-12: var(--ink-12, rgba(14, 14, 14, 0.12));
+    --m-erro: var(--error, #b3261e);
+    --m-erro-suave: #fdecea;
+    --m-ok: #17703f;
+    --m-ok-suave: #d8f1e3;
+    --m-aviso: #8a5a00;
+    --m-aviso-suave: #fff1cf;
+    --m-serif: var(--font-serif, "Newsreader", Georgia, serif);
+    --m-sans: var(--font-sans, "IBM Plex Sans", -apple-system, sans-serif);
+
+    margin: auto;
+    padding: 0;
+    border: none;
+    border-radius: var(--radius-m, 10px);
+    width: min(560px, calc(100vw - 32px));
+    max-height: calc(100vh - 32px);
+    max-height: calc(100dvh - 32px);
+    background: #ffffff;
+    color: var(--m-ink);
+    font-family: var(--m-sans);
+    line-height: 1.5;
+    box-shadow: 0 24px 60px -20px rgba(14, 14, 14, 0.45);
+}
+
+dialog.modal[open] {
+    display: flex;
+    flex-direction: column;
+    animation: modal-entra 0.2s ease;
+}
+
+dialog.modal[open]::backdrop {
+    animation: modal-fundo 0.2s ease;
+}
+
+dialog.modal-largo {
+    width: min(760px, calc(100vw - 32px));
+}
+
+dialog.modal::backdrop {
+    background: rgba(14, 14, 14, 0.5);
+    backdrop-filter: blur(2px);
+}
+
+dialog.modal h2 {
+    font-family: var(--m-serif);
+    font-weight: 500;
+    font-size: clamp(1.35rem, 1vw + 1.1rem, 1.7rem);
+    line-height: 1.2;
+}
+
+dialog.modal :focus-visible {
+    outline: 2px solid var(--m-azul-vivo);
+    outline-offset: 3px;
+}
+
+@keyframes modal-entra {
+    from {
+        opacity: 0;
+        transform: translateY(10px) scale(0.98);
+    }
+}
+
+@keyframes modal-fundo {
+    from {
+        opacity: 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    dialog.modal[open],
+    dialog.modal[open]::backdrop {
+        animation: none;
+    }
+}
+
+/* ---------- Botões dentro das janelas ---------- */
+dialog.modal .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 22px;
+    border-radius: 4px;
+    font-family: var(--m-sans);
+    font-weight: 600;
+    font-size: 0.95rem;
+    line-height: 1.2;
+    white-space: nowrap;
+    cursor: pointer;
+    border: 1.5px solid transparent;
+    background: transparent;
+    color: var(--m-ink);
+    transition:
+        background-color 0.2s ease,
+        border-color 0.2s ease,
+        color 0.2s ease,
+        transform 0.1s ease;
+}
+
+dialog.modal .btn:active:not(:disabled) {
+    transform: translateY(1px);
+}
+
+dialog.modal .btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+dialog.modal .btn-primary {
+    background: var(--m-azul);
+    color: var(--m-papel);
+}
+
+dialog.modal .btn-primary:hover:not(:disabled) {
+    background: var(--m-azul-escuro);
+    color: var(--m-papel);
+}
+
+dialog.modal .btn-outline {
+    border-color: var(--m-ink-12);
+}
+
+dialog.modal .btn-outline:hover:not(:disabled) {
+    border-color: var(--m-azul);
+    color: var(--m-azul);
+}
+
+dialog.modal .btn-perigo {
+    color: var(--m-erro);
+    border-color: rgba(179, 38, 30, 0.3);
+}
+
+dialog.modal .btn-perigo:hover:not(:disabled) {
+    background: var(--m-erro);
+    border-color: var(--m-erro);
+    color: #ffffff;
+}
+
+dialog.modal .btn-perigo-cheio {
+    background: var(--m-erro);
+    color: #ffffff;
+}
+
+dialog.modal .btn-perigo-cheio:hover:not(:disabled) {
+    background: #8f1d17;
+    color: #ffffff;
+}
+
+/* ---------- Janela com cabeçalho, corpo e rodapé ---------- */
+.modal-cabecalho {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 24px 28px 0;
+}
+
+.modal-cabecalho p {
+    margin-top: 4px;
+    font-size: 0.9rem;
+    color: var(--m-ink-70);
+}
+
+.modal-fechar {
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    line-height: 1;
+    color: var(--m-ink-70);
+    background: transparent;
+    border: 1px solid var(--m-ink-12);
+    border-radius: 50%;
+    cursor: pointer;
+    transition:
+        border-color 0.2s ease,
+        color 0.2s ease;
+}
+
+.modal-fechar:hover {
+    border-color: var(--m-azul);
+    color: var(--m-azul);
+}
+
+.modal-corpo {
+    padding: 20px 28px;
+    overflow-y: auto;
+    min-height: 0;
+}
+
+.modal-rodape {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 16px 28px 24px;
+    border-top: 1px solid var(--m-ink-12);
+}
+
+/* ---------- Aviso curto (sucesso, erro, aviso, informação, confirmação) ---------- */
+dialog.modal-aviso {
+    width: min(420px, calc(100vw - 32px));
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+}
+
+.aviso-conteudo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 36px 32px 4px;
+    overflow-y: auto;
+    min-height: 0;
+}
+
+.aviso-icone {
+    width: 64px;
+    height: 64px;
+    margin-bottom: 6px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    color: var(--m-azul);
+    background: color-mix(in srgb, var(--m-azul-claro) 55%, #ffffff);
+    animation: aviso-icone-entra 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.3);
+}
+
+.aviso-icone svg {
+    width: 30px;
+    height: 30px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+@keyframes aviso-icone-entra {
+    from {
+        opacity: 0;
+        transform: scale(0.6);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .aviso-icone {
+        animation: none;
+    }
+}
+
+.tom-sucesso .aviso-icone {
+    color: var(--m-ok);
+    background: var(--m-ok-suave);
+}
+
+.tom-erro .aviso-icone {
+    color: var(--m-erro);
+    background: var(--m-erro-suave);
+}
+
+.tom-aviso .aviso-icone {
+    color: var(--m-aviso);
+    background: var(--m-aviso-suave);
+}
+
+.aviso-titulo {
+    overflow-wrap: anywhere;
+}
+
+.aviso-texto {
+    width: 100%;
+    display: grid;
+    gap: 10px;
+    justify-items: center;
+}
+
+.aviso-mensagem {
+    font-size: 0.97rem;
+    line-height: 1.55;
+    color: var(--m-ink-70);
+    overflow-wrap: anywhere;
+}
+
+.aviso-itens {
+    width: 100%;
+    display: grid;
+    gap: 6px;
+    padding: 12px 14px;
+    list-style: none;
+    text-align: left;
+    font-size: 0.9rem;
+    line-height: 1.45;
+    color: var(--m-erro);
+    background: var(--m-erro-suave);
+    border-radius: 8px;
+}
+
+.aviso-itens li {
+    position: relative;
+    padding-left: 16px;
+    overflow-wrap: anywhere;
+}
+
+.aviso-itens li::before {
+    content: "";
+    position: absolute;
+    left: 2px;
+    top: 0.62em;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.tom-aviso .aviso-itens {
+    color: var(--m-aviso);
+    background: var(--m-aviso-suave);
+}
+
+.aviso-acoes {
+    display: flex;
+    gap: 10px;
+    padding: 22px 32px 30px;
+}
+
+.aviso-acoes .btn {
+    flex: 1;
+}
+
+/* Barra fina que esvazia enquanto um aviso de sucesso fecha sozinho */
+.aviso-progresso {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 3px;
+    background: var(--m-ok);
+    transform-origin: left;
+    animation: aviso-progresso linear forwards;
+}
+
+@keyframes aviso-progresso {
+    to {
+        transform: scaleX(0);
+    }
+}
+
+@media (max-width: 640px) {
+    .modal-cabecalho {
+        padding: 20px 20px 0;
+    }
+
+    .modal-corpo {
+        padding: 18px 20px;
+    }
+
+    .modal-rodape {
+        padding: 14px 20px 20px;
+    }
+
+    .modal-rodape .btn {
+        flex: 1 1 140px;
+    }
+
+    .aviso-conteudo {
+        padding: 30px 22px 2px;
+    }
+
+    .aviso-acoes {
+        padding: 20px 22px 24px;
+    }
+}

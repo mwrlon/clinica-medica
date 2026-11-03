@@ -24,92 +24,6 @@
     gap: 28px;
 }
 
-.metricas {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 20px;
-}
-
-.metrica {
-    padding: 20px;
-}
-
-.metrica .valor {
-    margin: 8px 0 4px;
-    font-family: var(--font-serif);
-    font-size: 2.4rem;
-    font-weight: 500;
-    line-height: 1.1;
-    color: var(--blue-deep);
-}
-
-.metrica .detalhe {
-    font-size: 0.85rem;
-    line-height: 1.4;
-    color: var(--ink-45);
-}
-
-/* ---------- Agenda ---------- */
-.entrada-data {
-    width: auto;
-    min-width: 170px;
-}
-
-.entrada-busca {
-    width: min(260px, 100%);
-}
-
-.tabela-rolagem {
-    overflow-x: auto;
-}
-
-.tabela {
-    width: 100%;
-    min-width: 660px;
-    border-collapse: collapse;
-}
-
-.tabela th,
-.tabela td {
-    padding: 14px 16px;
-    text-align: left;
-    vertical-align: middle;
-    border-bottom: 1px solid var(--ink-12);
-    font-size: 0.92rem;
-}
-
-.tabela th {
-    font-size: 0.78rem;
-    font-weight: 600;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--ink-45);
-}
-
-.tabela tbody tr:last-child td {
-    border-bottom: 0;
-}
-
-.tabela tbody tr:hover td {
-    background: rgba(174, 218, 244, 0.16);
-}
-
-.tabela .hora {
-    font-weight: 600;
-    white-space: nowrap;
-}
-
-.tabela .vazio {
-    padding: 24px 16px;
-    text-align: center;
-}
-
-.acoes-linha {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-}
-
 /* ---------- Meus pacientes ---------- */
 .grade-pacientes {
     display: grid;
@@ -345,25 +259,12 @@
 
 /* ---------- Responsividade ---------- */
 @media (max-width: 1100px) {
-    .metricas {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
     .graficos {
         grid-template-columns: minmax(0, 1fr);
     }
 }
 
 @media (max-width: 520px) {
-    .metricas {
-        grid-template-columns: minmax(0, 1fr);
-    }
-
-    .entrada-data,
-    .entrada-busca {
-        width: 100%;
-    }
-
     .linha-adicionar {
         flex-wrap: wrap;
     }

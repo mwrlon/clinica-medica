@@ -28,6 +28,12 @@ class PermissoesAdminTest extends TestCase
             'criar sala'           => ['POST', '/api/admin/salas'],
             'listar convênios'     => ['GET', '/api/admin/convenios'],
             'criar convênio'       => ['POST', '/api/admin/convenios'],
+            'excluir sala'         => ['DELETE', '/api/admin/salas/1'],
+            'excluir convênio'     => ['DELETE', '/api/admin/convenios/1'],
+            'especialidades (admin)' => ['GET', '/api/admin/especialidades'],
+            'visão geral'          => ['GET', '/api/admin/resumo'],
+            'todas as consultas'   => ['GET', '/api/admin/consultas'],
+            'todos os pacientes'   => ['GET', '/api/admin/pacientes'],
         ];
     }
 

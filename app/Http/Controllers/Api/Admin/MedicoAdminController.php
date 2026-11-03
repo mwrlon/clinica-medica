@@ -14,7 +14,11 @@ class MedicoAdminController extends Controller
      */
     public function index()
     {
-        $medicos = Medico::with('especialidade')->get();
+        $medicos = Medico::with('especialidade')
+            ->withCount('consultas')
+            ->orderBy('nome')
+            ->get();
+
         return response()->json($medicos);
     }
 
@@ -77,12 +81,12 @@ class MedicoAdminController extends Controller
         $medico = Medico::findOrFail($id);
 
         $validated = $request->validate([
-            'nome'             => 'sometimes|string|max:150',
-            'crm'              => 'sometimes|string|max:20|unique:medicos,crm,' . $id,
-            'especialidade_id' => 'sometimes|exists:especialidades,id',
-            'telefone'         => 'sometimes|string|max:20',
-            'email'            => 'sometimes|email|max:150|unique:medicos,email,' . $id,
-            'status'           => 'sometimes|in:ativo,inativo',
+            'nome'             => 'sometimes|required|string|max:150',
+            'crm'              => 'sometimes|required|string|max:20|unique:medicos,crm,' . $id,
+            'especialidade_id' => 'sometimes|required|exists:especialidades,id',
+            'telefone'         => 'sometimes|required|string|max:20',
+            'email'            => 'sometimes|required|email|max:150|unique:medicos,email,' . $id,
+            'status'           => 'sometimes|required|in:ativo,inativo',
             'senha'            => 'nullable|string|min:8',
         ]);
 
@@ -105,6 +109,15 @@ class MedicoAdminController extends Controller
     public function destroy($id)
     {
         $medico = Medico::findOrFail($id);
+
+        // A chave estrangeira das consultas é "cascadeOnDelete": excluir um médico com histórico
+        // apagaria também as consultas e os atendimentos dele. Nesse caso o cadastro deve ser inativado.
+        if ($medico->consultas()->exists()) {
+            return response()->json([
+                'mensagem' => 'Não é possível excluir: este médico possui consultas registradas. Inative o cadastro em vez de excluir.',
+            ], 409);
+        }
+
         $medico->delete();
 
         return response()->json(['mensagem' => 'Médico removido da base de dados.']);

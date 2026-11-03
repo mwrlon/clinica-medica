@@ -19,6 +19,7 @@
                     <li><a href="#consultas">Minhas Consultas</a></li>
                     <li><a href="#exames">Exames e Receitas</a></li>
                     <li><a href="#historico">Histórico e Saúde</a></li>
+                    <li><a href="#perfil">Meu Perfil</a></li>
                 </ul>
             </nav>
 
@@ -85,6 +86,15 @@
                 <h3 class="item-titulo">Evolução da Pressão Arterial (Sistólica/Diastólica)</h3>
                 <!-- O sistema ainda não registra medições de pressão: sem gráfico, evita uma caixa vazia -->
                 <p class="vazio">Ainda não há medições de pressão arterial registradas.</p>
+            </section>
+
+            <!-- MEU PERFIL: dados pessoais e senha -->
+            <section id="perfil">
+                <div class="card-cabecalho">
+                    <h2>Meu Perfil</h2>
+                </div>
+                <!-- Os formulários são montados por resources/js/lib/perfil.js -->
+                <div class="perfil-grade" data-campo="perfil"></div>
             </section>
         </div>
     </main>

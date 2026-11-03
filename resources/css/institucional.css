@@ -1,0 +1,216 @@
+/*
+ * Páginas institucionais (termos, privacidade) e de erro (404).
+ * Fontes, cores, cabeçalho, botões e etiquetas vêm de painel-base.css (mesmo visual do index).
+ */
+
+.institucional {
+    min-height: calc(100vh - 220px);
+    padding: 56px var(--gutter) 24px;
+}
+
+.site-footer a {
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.site-footer a:hover {
+    color: var(--blue-soft);
+}
+
+/* ---------- Documento (termos e privacidade) ---------- */
+.documento {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 40px 44px 48px;
+    background: #ffffff;
+    border: 1px solid var(--ink-12);
+    border-radius: var(--radius-m);
+}
+
+.documento-topo {
+    margin-bottom: 28px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--ink-12);
+}
+
+.documento-topo .tag {
+    margin-bottom: 14px;
+}
+
+.documento-meta {
+    margin-top: 10px;
+    font-size: 0.88rem;
+    color: var(--ink-45);
+}
+
+.documento h2 {
+    margin: 32px 0 10px;
+    font-size: 1.35rem;
+}
+
+.documento p,
+.documento li {
+    color: var(--ink-70);
+    line-height: 1.7;
+}
+
+.documento p + p {
+    margin-top: 12px;
+}
+
+.documento ul {
+    margin: 10px 0 0;
+    padding-left: 22px;
+}
+
+.documento li + li {
+    margin-top: 8px;
+}
+
+.documento li strong,
+.documento-destaque strong {
+    color: var(--ink);
+    font-weight: 600;
+}
+
+.documento a {
+    color: var(--blue-deep);
+    font-weight: 500;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.documento a:hover {
+    color: var(--blue-darker);
+}
+
+.documento-destaque {
+    margin: 20px 0 0;
+    padding: 16px 18px;
+    background: var(--paper);
+    border-left: 4px solid var(--blue-deep);
+    border-radius: 0 var(--radius-s) var(--radius-s) 0;
+}
+
+.documento-destaque p {
+    margin-top: 4px;
+}
+
+/* ---------- Página de erro (404) ---------- */
+.erro-pagina {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 24px 0 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.erro-codigo {
+    font-family: var(--font-serif);
+    font-size: clamp(5.5rem, 18vw, 9rem);
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--blue-deep);
+}
+
+/* Linha de batimento cardíaco que se desenha sozinha */
+.erro-pulso {
+    width: min(360px, 80%);
+    height: auto;
+    margin: 4px 0 24px;
+    color: var(--blue-vivid);
+}
+
+.erro-pulso path {
+    stroke-dasharray: 520;
+    stroke-dashoffset: 520;
+    animation: pulso-desenha 2.2s ease-out 0.2s forwards;
+}
+
+@keyframes pulso-desenha {
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .erro-pulso path {
+        animation: none;
+        stroke-dashoffset: 0;
+    }
+}
+
+.erro-pagina .tag {
+    margin-bottom: 14px;
+}
+
+.erro-pagina .lead {
+    margin-top: 12px;
+    max-width: 52ch;
+    font-size: 1.05rem;
+    color: var(--ink-70);
+}
+
+.erro-acoes {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 28px;
+}
+
+.erro-atalhos {
+    width: 100%;
+    margin-top: 44px;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 14px;
+    text-align: left;
+}
+
+.erro-atalhos a {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    height: 100%;
+    padding: 16px;
+    background: #ffffff;
+    border: 1px solid var(--ink-12);
+    border-radius: var(--radius-m);
+    transition:
+        border-color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.erro-atalhos a:hover {
+    border-color: var(--blue-deep);
+    transform: translateY(-2px);
+}
+
+.erro-atalhos strong {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--blue-deep);
+}
+
+.erro-atalhos span {
+    font-size: 0.82rem;
+    line-height: 1.4;
+    color: var(--ink-70);
+}
+
+@media (max-width: 640px) {
+    .institucional {
+        padding-top: 32px;
+    }
+
+    .documento {
+        padding: 28px 22px 34px;
+    }
+}

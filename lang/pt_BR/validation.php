@@ -12,6 +12,7 @@ return [
     'email'           => 'Informe um :attribute válido.',
     'exists'          => 'O valor informado em :attribute não existe.',
     'in'              => 'O valor informado em :attribute é inválido.',
+    'integer'         => 'O campo :attribute deve ser um número inteiro.',
     'max'             => [
         'array'   => 'O campo :attribute deve ter no máximo :max itens.',
         'numeric' => 'O campo :attribute não pode ser maior que :max.',
@@ -45,5 +46,15 @@ return [
         'consulta_id'     => 'consulta',
         'diagnostico'     => 'diagnóstico',
         'identificacao'   => 'identificação',
+        'senha_atual'     => 'senha atual',
+        'endereco'        => 'endereço',
+        'convenio_id'     => 'convênio',
+        'crm'             => 'CRM',
+        'especialidade_id' => 'especialidade',
+        'status'          => 'situação',
+        'busca'           => 'busca',
+        'data_inicio'     => 'data inicial',
+        'data_fim'        => 'data final',
+        'por_pagina'      => 'itens por página',
     ],
 ];

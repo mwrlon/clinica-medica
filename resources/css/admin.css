@@ -1,0 +1,284 @@
+/*
+ * Painel do administrador: só o que é específico desta tela.
+ * Fontes, cores, botões, etiquetas, cartões, tabelas, métricas e janelas vêm de painel-base.css.
+ */
+
+.painel-unico {
+    max-width: var(--painel-max);
+    margin: 0 auto;
+    padding: 40px var(--gutter) 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+}
+
+.aba {
+    min-width: 0;
+}
+
+/* ---------- Visão geral ---------- */
+#resumo {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.resumo-grade {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+    align-items: start;
+}
+
+.card-cabecalho .link-acao {
+    margin-top: 0;
+}
+
+.barras {
+    display: grid;
+    gap: 16px;
+}
+
+.barra-rotulo {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 6px;
+    font-size: 0.9rem;
+}
+
+.barra-rotulo strong {
+    font-weight: 600;
+    color: var(--blue-deep);
+}
+
+.barra {
+    height: 10px;
+    overflow: hidden;
+    background: rgba(174, 218, 244, 0.4);
+    border-radius: 10px;
+}
+
+.barra i {
+    display: block;
+    height: 100%;
+    background: var(--blue-deep);
+    border-radius: 10px;
+}
+
+.lista-proximas {
+    list-style: none;
+}
+
+.lista-proximas li {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 0;
+}
+
+.lista-proximas li:first-child {
+    padding-top: 0;
+}
+
+.lista-proximas li:last-child {
+    padding-bottom: 0;
+}
+
+.lista-proximas li + li {
+    border-top: 1px solid var(--ink-12);
+}
+
+.proxima-data {
+    flex-shrink: 0;
+    width: 68px;
+    padding: 6px 0;
+    text-align: center;
+    line-height: 1.25;
+    background: var(--paper);
+    border: 1px solid var(--ink-12);
+    border-radius: 8px;
+}
+
+.proxima-data span {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--blue-deep);
+}
+
+.proxima-data strong {
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.proxima-info {
+    min-width: 0;
+}
+
+.proxima-info .item-titulo,
+.proxima-info small {
+    overflow-wrap: anywhere;
+}
+
+.proxima-info small {
+    display: block;
+    font-size: 0.82rem;
+    color: var(--ink-70);
+}
+
+/* ---------- Filtros e tabelas ---------- */
+.filtros {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.filtros > .entrada {
+    flex: 1 1 220px;
+    width: auto;
+    max-width: 340px;
+}
+
+.filtros-consultas .campo {
+    flex: 1 1 170px;
+    max-width: 260px;
+}
+
+.tabela-larga {
+    min-width: 840px;
+}
+
+.tabela td small,
+.detalhe-celula {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--ink-45);
+    overflow-wrap: anywhere;
+}
+
+.tabela .item-titulo {
+    overflow-wrap: anywhere;
+}
+
+.tabela .numero {
+    font-weight: 600;
+}
+
+.paginacao {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.paginacao:empty {
+    display: none;
+}
+
+.paginacao-info {
+    font-size: 0.88rem;
+    color: var(--ink-70);
+}
+
+.paginacao-botoes {
+    display: flex;
+    gap: 8px;
+}
+
+/* ---------- Cadastros ---------- */
+.cadastros-grade {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
+    align-items: start;
+}
+
+.cadastros-grade .card-cabecalho {
+    margin-bottom: 8px;
+}
+
+.cadastro-descricao {
+    font-size: 0.88rem;
+    color: var(--ink-70);
+}
+
+.lista-cadastro {
+    list-style: none;
+    margin: 16px 0;
+}
+
+.lista-cadastro li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 0;
+    border-top: 1px solid var(--ink-12);
+}
+
+.lista-cadastro li:first-child {
+    border-top: 0;
+}
+
+.lista-cadastro .item-nome {
+    min-width: 0;
+    font-size: 0.95rem;
+    overflow-wrap: anywhere;
+}
+
+.lista-cadastro small {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--ink-45);
+}
+
+.lista-cadastro .vazio {
+    padding: 4px 0;
+}
+
+.form-adicionar {
+    display: flex;
+    gap: 8px;
+    padding-top: 16px;
+    border-top: 1px solid var(--ink-12);
+}
+
+.form-adicionar .entrada {
+    flex: 1;
+    min-width: 0;
+}
+
+/* ---------- Responsividade ---------- */
+@media (max-width: 1100px) {
+    .resumo-grade,
+    .cadastros-grade {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+@media (max-width: 520px) {
+    .painel-unico {
+        padding-top: 28px;
+    }
+
+    .filtros > .entrada,
+    .filtros-consultas .campo {
+        flex-basis: 100%;
+        max-width: none;
+    }
+
+    .form-adicionar {
+        flex-wrap: wrap;
+    }
+
+    .form-adicionar .btn {
+        flex: 1 1 100%;
+    }
+}
